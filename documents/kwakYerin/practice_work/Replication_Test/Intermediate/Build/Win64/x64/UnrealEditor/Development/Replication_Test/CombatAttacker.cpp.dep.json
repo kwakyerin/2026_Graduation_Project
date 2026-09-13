@@ -1,0 +1,15 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\source\\replication_test\\variant_combat\\interfaces\\combatattacker.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\intermediate\\build\\win64\\x64\\replication_testeditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.valexpapi.cpp20.h.pch",
+        "Includes": [
+            "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\replication_test\\definitions.replication_test.h",
+            "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\source\\replication_test\\variant_combat\\interfaces\\combatattacker.h",
+            "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\intermediate\\build\\win64\\unrealeditor\\inc\\replication_test\\uht\\combatattacker.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

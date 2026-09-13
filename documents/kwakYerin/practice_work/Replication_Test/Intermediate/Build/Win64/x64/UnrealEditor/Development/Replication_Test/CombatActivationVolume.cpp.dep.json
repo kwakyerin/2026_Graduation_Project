@@ -1,0 +1,30 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\source\\replication_test\\variant_combat\\gameplay\\combatactivationvolume.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\intermediate\\build\\win64\\x64\\replication_testeditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.valexpapi.cpp20.h.pch",
+        "Includes": [
+            "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\replication_test\\definitions.replication_test.h",
+            "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\source\\replication_test\\variant_combat\\gameplay\\combatactivationvolume.h",
+            "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\intermediate\\build\\win64\\unrealeditor\\inc\\replication_test\\uht\\combatactivationvolume.generated.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\source\\runtime\\engine\\classes\\components\\boxcomponent.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\source\\runtime\\engine\\classes\\components\\shapecomponent.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\shapecomponent.generated.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\boxcomponent.generated.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\source\\runtime\\engine\\classes\\gameframework\\character.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\source\\runtime\\engine\\classes\\gameframework\\charactermovementreplication.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\source\\runtime\\net\\core\\public\\net\\core\\nettoken\\nettokenexportcontext.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\source\\runtime\\net\\iris\\public\\iris\\serialization\\irisobjectreferencepackagemap.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\iriscore\\uht\\irisobjectreferencepackagemap.generated.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\charactermovementreplication.generated.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\source\\runtime\\engine\\classes\\gameframework\\rootmotionsource.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\rootmotionsource.generated.h",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\character.generated.h",
+            "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\source\\replication_test\\variant_combat\\interfaces\\combatactivatable.h",
+            "c:\\grauation_proj\\documents\\kwakyerin\\practice_work\\replication_test\\intermediate\\build\\win64\\unrealeditor\\inc\\replication_test\\uht\\combatactivatable.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

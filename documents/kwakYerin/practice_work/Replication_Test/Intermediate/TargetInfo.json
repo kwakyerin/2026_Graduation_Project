@@ -1,0 +1,14 @@
+{
+	"Targets": [
+		{
+			"Name": "Replication_Test",
+			"Path": "..\\Source\\Replication_Test.Target.cs",
+			"Type": "Game"
+		},
+		{
+			"Name": "Replication_TestEditor",
+			"Path": "..\\Source\\Replication_TestEditor.Target.cs",
+			"Type": "Editor"
+		}
+	]
+}
