@@ -21,6 +21,13 @@ protected:
 	UFUNCTION()
 	void OnRep_TestNumber();
 
+	//repnotify 반응 확인
+	// 서버에서 TestNumber를 증가시킬 함수
+	void IncreaseTestNumber();
+
+	// 2초마다 함수를 실행하기 위한 타이머
+	FTimerHandle TestNumberTimer;
+
 public:
 	virtual void GetLifetimeReplicatedProps(
 		TArray<FLifetimeProperty>& OutLifetimeProps
