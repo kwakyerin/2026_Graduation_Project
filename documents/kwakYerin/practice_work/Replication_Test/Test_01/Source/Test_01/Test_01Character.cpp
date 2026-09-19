@@ -10,7 +10,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "InputCoreTypes.h" //컨트롤러
+#include "Net/UnrealNetwork.h"
 #include "Test_01.h"
+
 
 ATest_01Character::ATest_01Character()
 {
@@ -65,6 +68,12 @@ void ATest_01Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATest_01Character::Look);
+
+		//RPC 연습용 E키 실습
+		PlayerInputComponent->BindKey(EKeys::F,IE_Pressed,this,&ATest_01Character::TestRPC);
+
+		//왼쪽 마우스
+		PlayerInputComponent->BindKey(EKeys::LeftMouseButton,IE_Pressed,this,& ATest_01Character::Fire);
 	}
 	else
 	{
@@ -130,4 +139,61 @@ void ATest_01Character::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+void ATest_01Character::TestRPC()
+{
+	UE_LOG(LogTemp, Warning, TEXT("INPUT : TestRPC called"));
+
+	Server_AddNumber();
+}
+
+void ATest_01Character::Server_AddNumber_Implementation()
+{
+
+	RPCNumber++;
+
+	UE_LOG(LogTemp, Warning,TEXT("SERVER RPC : RPCNumber = %d"),RPCNumber);
+
+	Multicast_ShowMessage();
+}
+
+void ATest_01Character::Multicast_ShowMessage_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("MULTICAST EXECUTED"));
+}
+
+void ATest_01Character::OnRep_RPCNumber()
+{
+	UE_LOG(LogTemp, Warning,
+		TEXT("CLIENT REPNotify : RPCNumber = %d"),
+		RPCNumber);
+}
+
+void ATest_01Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ATest_01Character, RPCNumber);
+}
+
+//fps 관련 함수
+void ATest_01Character::Fire() {
+
+	UE_LOG(LogTemp, Warning, TEXT("INPUT : FIRE"));
+
+	Server_Fire();
+}
+
+void ATest_01Character::Multicast_FireFX_Implementation(){
+
+	UE_LOG(LogTemp, Warning, TEXT("SERVER : FIRE RECEIVED"));
+
+	Multicast_FireFX();
+}
+
+void ATest_01Character::Server_Fire_Implementation(){
+
+	UE_LOG(LogTemp, Warning, TEXT("MULTICAST : FIRE FX"));
+
 }

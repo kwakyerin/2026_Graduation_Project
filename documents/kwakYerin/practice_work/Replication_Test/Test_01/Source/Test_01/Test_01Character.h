@@ -92,5 +92,44 @@ public:
 
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+public:
+
+	// 클라이언트가 서버에게 요청하는 RPC
+	UFUNCTION(Server, Reliable)
+	void Server_AddNumber();
+
+	// 서버가 모든 클라이언트에게 실행시키는 RPC
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ShowMessage();
+
+	// F키를 눌렀을 때 실행
+	void TestRPC();
+
+	// fps 전용
+	void Fire();
+
+	UFUNCTION(Server, Reliable)
+	void Server_Fire();
+
+	UFUNCTION(NetMulticast,Unreliable)
+	void Multicast_FireFX();
+
+	//Repnotify 현상 확인(함수 관리용)
+	// 
+	// Replication 등록
+	virtual void GetLifetimeReplicatedProps(
+		TArray<FLifetimeProperty>& OutLifetimeProps
+	) const override;
+
+protected:
+
+	//Repnotify 현상 확인(변수 관리용)
+	UPROPERTY(ReplicatedUsing = OnRep_RPCNumber)
+	int32 RPCNumber = 0;
+
+	UFUNCTION()
+	void OnRep_RPCNumber();
+
 };
 
