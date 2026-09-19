@@ -106,7 +106,17 @@ public:
 	// F키를 눌렀을 때 실행
 	void TestRPC();
 
+	// fps 전용
+	void Fire();
+
+	UFUNCTION(Server, Reliable)
+	void Server_Fire();
+
+	UFUNCTION(NetMulticast,Unreliable)
+	void Multicast_FireFX();
+
 	//Repnotify 현상 확인(함수 관리용)
+	// 
 	// Replication 등록
 	virtual void GetLifetimeReplicatedProps(
 		TArray<FLifetimeProperty>& OutLifetimeProps

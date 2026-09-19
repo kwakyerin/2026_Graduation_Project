@@ -71,6 +71,9 @@ void ATest_01Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		//RPC 연습용 E키 실습
 		PlayerInputComponent->BindKey(EKeys::F,IE_Pressed,this,&ATest_01Character::TestRPC);
+
+		//왼쪽 마우스
+		PlayerInputComponent->BindKey(EKeys::LeftMouseButton,IE_Pressed,this,& ATest_01Character::Fire);
 	}
 	else
 	{
@@ -172,4 +175,25 @@ void ATest_01Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ATest_01Character, RPCNumber);
+}
+
+//fps 관련 함수
+void ATest_01Character::Fire() {
+
+	UE_LOG(LogTemp, Warning, TEXT("INPUT : FIRE"));
+
+	Server_Fire();
+}
+
+void ATest_01Character::Multicast_FireFX_Implementation(){
+
+	UE_LOG(LogTemp, Warning, TEXT("SERVER : FIRE RECEIVED"));
+
+	Multicast_FireFX();
+}
+
+void ATest_01Character::Server_Fire_Implementation(){
+
+	UE_LOG(LogTemp, Warning, TEXT("MULTICAST : FIRE FX"));
+
 }
