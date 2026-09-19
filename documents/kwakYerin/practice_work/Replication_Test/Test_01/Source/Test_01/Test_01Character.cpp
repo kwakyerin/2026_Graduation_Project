@@ -10,7 +10,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "InputCoreTypes.h" //컨트롤러
 #include "Test_01.h"
+
 
 ATest_01Character::ATest_01Character()
 {
@@ -65,6 +67,9 @@ void ATest_01Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATest_01Character::Look);
+
+		//RPC 연습용 E키 실습
+		PlayerInputComponent->BindKey(EKeys::F,IE_Pressed,this,&ATest_01Character::TestRPC);
 	}
 	else
 	{
@@ -130,4 +135,23 @@ void ATest_01Character::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+void ATest_01Character::TestRPC()
+{
+	UE_LOG(LogTemp, Warning, TEXT("INPUT : TestRPC called"));
+
+	Server_AddNumber();
+}
+
+void ATest_01Character::Server_AddNumber_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("SERVER RPC RECEIVED"));
+
+	Multicast_ShowMessage();
+}
+
+void ATest_01Character::Multicast_ShowMessage_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("MULTICAST EXECUTED"));
 }

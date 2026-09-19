@@ -92,5 +92,18 @@ public:
 
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+public:
+
+	// 클라이언트가 서버에게 요청하는 RPC
+	UFUNCTION(Server, Reliable)
+	void Server_AddNumber();
+
+	// 서버가 모든 클라이언트에게 실행시키는 RPC
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ShowMessage();
+
+	// F키를 눌렀을 때 실행
+	void TestRPC();
 };
 
