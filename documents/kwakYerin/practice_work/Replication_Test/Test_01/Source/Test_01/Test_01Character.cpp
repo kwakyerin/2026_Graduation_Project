@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "InputCoreTypes.h" //컨트롤러
+#include "Net/UnrealNetwork.h"
 #include "Test_01.h"
 
 
@@ -146,7 +147,10 @@ void ATest_01Character::TestRPC()
 
 void ATest_01Character::Server_AddNumber_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SERVER RPC RECEIVED"));
+
+	RPCNumber++;
+
+	UE_LOG(LogTemp, Warning,TEXT("SERVER RPC : RPCNumber = %d"),RPCNumber);
 
 	Multicast_ShowMessage();
 }
@@ -154,4 +158,18 @@ void ATest_01Character::Server_AddNumber_Implementation()
 void ATest_01Character::Multicast_ShowMessage_Implementation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("MULTICAST EXECUTED"));
+}
+
+void ATest_01Character::OnRep_RPCNumber()
+{
+	UE_LOG(LogTemp, Warning,
+		TEXT("CLIENT REPNotify : RPCNumber = %d"),
+		RPCNumber);
+}
+
+void ATest_01Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ATest_01Character, RPCNumber);
 }

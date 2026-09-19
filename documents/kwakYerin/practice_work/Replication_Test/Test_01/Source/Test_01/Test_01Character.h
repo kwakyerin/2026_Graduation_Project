@@ -105,5 +105,21 @@ public:
 
 	// F키를 눌렀을 때 실행
 	void TestRPC();
+
+	//Repnotify 현상 확인(함수 관리용)
+	// Replication 등록
+	virtual void GetLifetimeReplicatedProps(
+		TArray<FLifetimeProperty>& OutLifetimeProps
+	) const override;
+
+protected:
+
+	//Repnotify 현상 확인(변수 관리용)
+	UPROPERTY(ReplicatedUsing = OnRep_RPCNumber)
+	int32 RPCNumber = 0;
+
+	UFUNCTION()
+	void OnRep_RPCNumber();
+
 };
 
