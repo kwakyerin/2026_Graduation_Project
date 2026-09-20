@@ -116,7 +116,6 @@ public:
 	void Multicast_FireFX();
 
 	//Repnotify 현상 확인(함수 관리용)
-	// 
 	// Replication 등록
 	virtual void GetLifetimeReplicatedProps(
 		TArray<FLifetimeProperty>& OutLifetimeProps

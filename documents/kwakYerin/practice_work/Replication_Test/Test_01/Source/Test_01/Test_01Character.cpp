@@ -153,7 +153,7 @@ void ATest_01Character::Server_AddNumber_Implementation()
 
 	RPCNumber++;
 
-	UE_LOG(LogTemp, Warning,TEXT("SERVER RPC : RPCNumber = %d"),RPCNumber);
+	//UE_LOG(LogTemp, Warning,TEXT("SERVER RPC : RPCNumber = %d"),RPCNumber);
 
 	Multicast_ShowMessage();
 }
@@ -178,22 +178,27 @@ void ATest_01Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 }
 
 //fps 관련 함수
-void ATest_01Character::Fire() {
-
-	UE_LOG(LogTemp, Warning, TEXT("INPUT : FIRE"));
+void ATest_01Character::Fire()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Fire() | Authority=%d | LocallyControlled=%d"),
+		HasAuthority(),
+		IsLocallyControlled());
 
 	Server_Fire();
 }
 
-void ATest_01Character::Multicast_FireFX_Implementation(){
-
-	UE_LOG(LogTemp, Warning, TEXT("SERVER : FIRE RECEIVED"));
-
-	Multicast_FireFX();
+void ATest_01Character::Multicast_FireFX_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Multicast_FireFX() | Authority=%d | LocallyControlled=%d"),
+		HasAuthority(),
+		IsLocallyControlled());
 }
 
-void ATest_01Character::Server_Fire_Implementation(){
+void ATest_01Character::Server_Fire_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Server_Fire() | Authority=%d | LocallyControlled=%d"),
+		HasAuthority(),
+		IsLocallyControlled());
 
-	UE_LOG(LogTemp, Warning, TEXT("MULTICAST : FIRE FX"));
-
+	Multicast_FireFX();
 }

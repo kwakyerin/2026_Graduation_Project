@@ -19,23 +19,18 @@ void AReplicationPracticeActor::BeginPlay()
 	Super::BeginPlay();
 
 	//2초마다 true 반복 실행
-	if (HasAuthority())
+	/*if (HasAuthority())
 	{
 		GetWorldTimerManager().SetTimer(TestNumberTimer,this,
 			&AReplicationPracticeActor::IncreaseTestNumber,2.0f,true);
-	}
+	}*/
 }
 
 void AReplicationPracticeActor::IncreaseTestNumber()
 {
 	TestNumber++;
 
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("SERVER : TestNumber = %d"),
-		TestNumber
-	);
+	UE_LOG(LogTemp,Warning,TEXT("SERVER : TestNumber = %d"),TestNumber);
 }
 
 void AReplicationPracticeActor::OnRep_TestNumber()
