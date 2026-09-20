@@ -50,6 +50,10 @@ ATest_01Character::ATest_01Character()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
+	// Health 초기화
+	MaxHealth = 100.0f;
+	CurrentHealth = MaxHealth;
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
@@ -177,6 +181,9 @@ void ATest_01Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ATest_01Character, RPCNumber);
+
+	// Health
+	DOREPLIFETIME(ATest_01Character, CurrentHealth);
 }
 
 //fps 관련 함수
@@ -230,4 +237,15 @@ void ATest_01Character::Server_Fire_Implementation()
 	}
 
 	Multicast_FireFX();
+}
+
+void ATest_01Character::OnHealthUpdate()
+{
+	UE_LOG(LogTemp,Warning,TEXT("Health Update | CurrentHealth = %.1f | Authority = %d"),CurrentHealth,HasAuthority()
+	);
+}
+
+void ATest_01Character::OnRep_CurrentHealth()
+{
+	OnHealthUpdate();
 }

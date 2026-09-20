@@ -131,7 +131,24 @@ protected:
 	void OnRep_RPCNumber();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Fire")
+	
 	void BP_PlayFireFX();
 
+	//HP 관리
+
+	// 최대 체력
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
+	float MaxHealth;
+
+	// 현재 체력
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
+	float CurrentHealth;
+
+	// CurrentHealth가 클라이언트에 복제되었을 때 호출
+	UFUNCTION()
+	void OnRep_CurrentHealth();
+
+	// 체력 변경 후 공통 처리
+	void OnHealthUpdate();
 };
 
