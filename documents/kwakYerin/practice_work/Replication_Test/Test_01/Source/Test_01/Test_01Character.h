@@ -130,5 +130,8 @@ protected:
 	UFUNCTION()
 	void OnRep_RPCNumber();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Fire")
+	void BP_PlayFireFX();
+
 };
 

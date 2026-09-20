@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "InputCoreTypes.h" //컨트롤러
+#include "DrawDebugHelpers.h" //fps 라인트레이스 표식
 #include "Net/UnrealNetwork.h"
 #include "Test_01.h"
 
@@ -170,6 +171,7 @@ void ATest_01Character::OnRep_RPCNumber()
 		RPCNumber);
 }
 
+
 void ATest_01Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -192,13 +194,40 @@ void ATest_01Character::Multicast_FireFX_Implementation()
 	UE_LOG(LogTemp, Warning, TEXT("Multicast_FireFX() | Authority=%d | LocallyControlled=%d"),
 		HasAuthority(),
 		IsLocallyControlled());
+
+	BP_PlayFireFX();
 }
 
 void ATest_01Character::Server_Fire_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Server_Fire() | Authority=%d | LocallyControlled=%d"),
-		HasAuthority(),
-		IsLocallyControlled());
+	UE_LOG(LogTemp, Warning, TEXT("SERVER : FIRE"));
+
+	FVector Start;
+	FRotator Rotation;
+
+	// 서버가 가지고 있는 Controller 기준 시점
+	GetActorEyesViewPoint(Start, Rotation);
+
+	const FVector End = Start + (Rotation.Vector() * 5000.0f);
+
+	FHitResult HitResult;
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,Start,End,ECC_Visibility,Params);
+
+	//라인트레이스 구현
+	DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,2.0f,0,2.0f);
+
+	if (bHit)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("HIT : %s"),*GetNameSafe(HitResult.GetActor()));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MISS"));
+	}
 
 	Multicast_FireFX();
 }
