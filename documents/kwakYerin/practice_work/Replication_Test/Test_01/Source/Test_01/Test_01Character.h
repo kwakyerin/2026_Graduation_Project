@@ -135,7 +135,6 @@ protected:
 	void BP_PlayFireFX();
 
 	//HP 관리
-
 	// 최대 체력
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float MaxHealth;
@@ -150,5 +149,28 @@ protected:
 
 	// 체력 변경 후 공통 처리
 	void OnHealthUpdate();
+
+public:
+
+	// 최대 체력 가져오기
+	UFUNCTION(BlueprintPure, Category = "Health")
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+
+	// 현재 체력 가져오기
+	UFUNCTION(BlueprintPure, Category = "Health")
+	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
+
+	// 현재 체력 변경
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void SetCurrentHealth(float HealthValue);
+
+	// 데미지 처리
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	float TakeDamage(
+		float DamageTaken,
+		struct FDamageEvent const& DamageEvent,
+		AController* EventInstigator,
+		AActor* DamageCauser
+	) override;
 };
 
