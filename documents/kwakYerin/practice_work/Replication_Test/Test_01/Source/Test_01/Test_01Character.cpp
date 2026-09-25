@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Test_01Character.h"
+#include "TestProjectile.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -13,8 +14,8 @@
 #include "InputCoreTypes.h" //컨트롤러
 #include "DrawDebugHelpers.h" //fps 라인트레이스 표식
 #include "Net/UnrealNetwork.h"
+#include "TestProjectile.h"
 #include "Test_01.h"
-
 
 ATest_01Character::ATest_01Character()
 {
@@ -207,36 +208,35 @@ void ATest_01Character::Multicast_FireFX_Implementation()
 
 void ATest_01Character::Server_Fire_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SERVER : FIRE"));
-
-	FVector Start;
-	FRotator Rotation;
-
-	// 서버가 가지고 있는 Controller 기준 시점
-	GetActorEyesViewPoint(Start, Rotation);
-
-	const FVector End = Start + (Rotation.Vector() * 5000.0f);
-
-	FHitResult HitResult;
-
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,Start,End,ECC_Visibility,Params);
-
-	//라인트레이스 구현
-	DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,2.0f,0,2.0f);
-
-	if (bHit)
+	if (!ProjectileClass)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("HIT : %s"),*GetNameSafe(HitResult.GetActor()));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("MISS"));
+		UE_LOG(LogTemp, Warning, TEXT("ProjectileClass is NULL"));
+		return;
 	}
 
-	Multicast_FireFX();
+	FVector SpawnLocation =
+		GetActorLocation() +
+		GetActorForwardVector() * 100.0f +
+		FVector(0.0f, 0.0f, 50.0f);
+
+	FRotator SpawnRotation = GetControlRotation();
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+
+	ATestProjectile* Projectile =
+		GetWorld()->SpawnActor<ATestProjectile>(
+			ProjectileClass,
+			SpawnLocation,
+			SpawnRotation,
+			SpawnParams
+		);
+
+	if (Projectile)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SERVER : Projectile Spawned"));
+	}
 }
 
 void ATest_01Character::OnHealthUpdate()

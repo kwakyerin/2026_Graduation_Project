@@ -10,6 +10,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
+class ATestProjectile;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -133,6 +134,10 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Fire")
 	
 	void BP_PlayFireFX();
+
+	// 발사할 Projectile 클래스
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<ATestProjectile> ProjectileClass;
 
 	//HP 관리
 	// 최대 체력

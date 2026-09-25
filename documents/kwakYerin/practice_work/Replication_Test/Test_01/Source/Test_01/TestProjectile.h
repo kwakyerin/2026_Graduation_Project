@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TestProjectile.generated.h"
 
+class ATestProjectile;
 class USphereComponent;
 class UStaticMeshComponent;
 class UProjectileMovementComponent;
@@ -33,4 +34,5 @@ protected:
     // Projectile 이동 담당
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
     UProjectileMovementComponent* ProjectileMovement;
+
 };
