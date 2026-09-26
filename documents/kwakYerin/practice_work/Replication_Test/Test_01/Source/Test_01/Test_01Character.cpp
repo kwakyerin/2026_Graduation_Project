@@ -171,9 +171,7 @@ void ATest_01Character::Multicast_ShowMessage_Implementation()
 
 void ATest_01Character::OnRep_RPCNumber()
 {
-	UE_LOG(LogTemp, Warning,
-		TEXT("CLIENT REPNotify : RPCNumber = %d"),
-		RPCNumber);
+	UE_LOG(LogTemp, Warning,TEXT("CLIENT REPNotify : RPCNumber = %d"),RPCNumber);
 }
 
 
@@ -239,6 +237,7 @@ void ATest_01Character::Server_Fire_Implementation()
 	}
 }
 
+//현재 체력상태 출력
 void ATest_01Character::OnHealthUpdate()
 {
 	UE_LOG(LogTemp,Warning,TEXT("Health Update | CurrentHealth = %.1f | Authority = %d"),CurrentHealth,HasAuthority()
@@ -254,11 +253,7 @@ void ATest_01Character::SetCurrentHealth(float HealthValue)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		CurrentHealth = FMath::Clamp(
-			HealthValue,
-			0.0f,
-			MaxHealth
-		);
+		CurrentHealth = FMath::Clamp(HealthValue,0.0f,MaxHealth);
 
 		OnHealthUpdate();
 	}
