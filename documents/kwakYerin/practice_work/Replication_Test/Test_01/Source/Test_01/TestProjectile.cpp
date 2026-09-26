@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ATestProjectile::ATestProjectile()
@@ -60,18 +61,43 @@ void ATestProjectile::BeginPlay()
 	
 }
 
-//일단 damage 안넣고 테스트 용으로 로그만 찍어보기
-void ATestProjectile::OnHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,
-    UPrimitiveComponent* OtherComponent,
+//데미지 처리는 서버에서만 이루어지게 하기
+void ATestProjectile::OnHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,
     FVector NormalImpulse,
     const FHitResult& Hit)
 {
+    // Damage 처리는 서버에서만
     if (!HasAuthority())
     {
         return;
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("PROJECTILE HIT : %s"), *GetNameSafe(OtherActor));
+    // 자기 자신은 제외
+    if (OtherActor && OtherActor != this && OtherActor != GetOwner()){
+        UE_LOG( LogTemp, Warning, TEXT("PROJECTILE HIT : %s"),*GetNameSafe(OtherActor));
+        UGameplayStatics::ApplyDamage(
+            OtherActor,                 // 맞은 Actor
+            20.0f,                      // 20씩 데미지 깎이게 하기
+            GetInstigatorController(),  // 발사한 플레이어 Controller
+            this,                       // Damage를 발생시킨 Actor
+            UDamageType::StaticClass()
+        );
+    }
+
 }
+
+////일단 damage 안넣고 테스트 용으로 로그만 찍어보기
+//void ATestProjectile::OnHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,
+//    UPrimitiveComponent* OtherComponent,
+//    FVector NormalImpulse,
+//    const FHitResult& Hit)
+//{
+//    if (!HasAuthority())
+//    {
+//        return;
+//    }
+//
+//    UE_LOG(LogTemp, Warning, TEXT("PROJECTILE HIT : %s"), *GetNameSafe(OtherActor));
+//}
 
 
