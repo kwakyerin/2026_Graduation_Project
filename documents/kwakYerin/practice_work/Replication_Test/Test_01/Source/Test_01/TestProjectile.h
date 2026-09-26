@@ -23,6 +23,16 @@ public:
 protected:
     virtual void BeginPlay() override;
 
+    // Projectile 충돌 시 호출
+    UFUNCTION()
+    void OnHit(
+        UPrimitiveComponent* HitComponent,
+        AActor* OtherActor,
+        UPrimitiveComponent* OtherComponent,
+        FVector NormalImpulse,
+        const FHitResult& Hit
+    );
+
     // 충돌 판정
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
     USphereComponent* SphereComponent;
