@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TestProjectile.generated.h"
 
+class ATestProjectile;
 class USphereComponent;
 class UStaticMeshComponent;
 class UProjectileMovementComponent;
@@ -22,6 +23,16 @@ public:
 protected:
     virtual void BeginPlay() override;
 
+    // Projectile 충돌 시 호출
+    UFUNCTION()
+    void OnHit(
+        UPrimitiveComponent* HitComponent,
+        AActor* OtherActor,
+        UPrimitiveComponent* OtherComponent,
+        FVector NormalImpulse,
+        const FHitResult& Hit
+    );
+
     // 충돌 판정
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
     USphereComponent* SphereComponent;
@@ -33,4 +44,5 @@ protected:
     // Projectile 이동 담당
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
     UProjectileMovementComponent* ProjectileMovement;
+
 };

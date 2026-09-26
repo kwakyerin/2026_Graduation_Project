@@ -22,6 +22,12 @@ ATestProjectile::ATestProjectile()
     SphereComponent->InitSphereRadius(15.0f);
     SphereComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 
+    // SphereComponent가 충돌하면 OnHit 함수 실행(무언가에 충돌하면 함수 실행된다는 뜻)
+    SphereComponent->OnComponentHit.AddDynamic(
+        this,
+        &ATestProjectile::OnHit
+    );
+
     RootComponent = SphereComponent;
 
     // 보이는 Mesh 생성
@@ -52,6 +58,20 @@ void ATestProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+//일단 damage 안넣고 테스트 용으로 로그만 찍어보기
+void ATestProjectile::OnHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,
+    UPrimitiveComponent* OtherComponent,
+    FVector NormalImpulse,
+    const FHitResult& Hit)
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("PROJECTILE HIT : %s"), *GetNameSafe(OtherActor));
 }
 
 
