@@ -244,19 +244,33 @@ void ATest_01Character::OnHealthUpdate()
 	);
 }
 
-void ATest_01Character::OnRep_CurrentHealth()
-{
-	OnHealthUpdate();
-}
-
 void ATest_01Character::SetCurrentHealth(float HealthValue)
 {
+	//서버에서만 HP 변경하기
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		CurrentHealth = FMath::Clamp(HealthValue,0.0f,MaxHealth);
-
-		OnHealthUpdate();
+		CurrentHealth = FMath::Clamp(HealthValue, 0.0f, MaxHealth);
 	}
+
+	OnHealthUpdate();
+
+	// HP가 0이 되면 사망(서버에서 사망판정하기)
+	if (CurrentHealth <= 0.0f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PLAYER DEAD | %s"), *GetNameSafe(this));
+	}
+}
+
+void ATest_01Character::OnRep_CurrentHealth()
+{
+	//서버에서 변경된 HP를 클라가 받음
+	OnHealthUpdate();
+
+	// 클라이언트에서 사망 상태 확인
+	if (CurrentHealth <= 0.0f){
+		UE_LOG(LogTemp,Warning,TEXT("CLIENT : PLAYER DEAD | %s"),*GetNameSafe(this));
+	}
+
 }
 
 float ATest_01Character::TakeDamage(float DamageTaken,struct FDamageEvent const& DamageEvent,
