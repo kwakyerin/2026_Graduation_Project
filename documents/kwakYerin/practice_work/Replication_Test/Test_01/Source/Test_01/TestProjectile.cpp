@@ -16,6 +16,9 @@ ATestProjectile::ATestProjectile()
     // 네트워크 복제(이게 핵심임)
     bReplicates = true;
 
+    //던졌을 때 공 4초 뒤에 없어짐
+    InitialLifeSpan = 4.0f;
+
     // 충돌체 생성
     SphereComponent =
         CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
@@ -83,6 +86,9 @@ void ATestProjectile::OnHit(UPrimitiveComponent* HitComponent,AActor* OtherActor
             UDamageType::StaticClass()
         );
     }
+
+    // 총알이 벽이나 캐릭터에 맞으면 바로 사라짐
+    Destroy();
 
 }
 
