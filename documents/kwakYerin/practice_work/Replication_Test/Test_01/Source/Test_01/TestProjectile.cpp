@@ -7,6 +7,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 
 
 // Sets default values
@@ -86,6 +88,11 @@ void ATestProjectile::OnHit(UPrimitiveComponent* HitComponent,AActor* OtherActor
             this,                       // Damage를 발생시킨 Actor
             UDamageType::StaticClass()
         );
+    }
+
+    //총돌한 위치에 나이아가라 폭발함
+    if (ExplosionEffect){
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),ExplosionEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
     }
 
     // 총알이 벽이나 캐릭터에 맞으면 바로 사라짐
