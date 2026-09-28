@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "NiagaraSystem.h"
 #include "TestProjectile.generated.h"
 
 class ATestProjectile;
@@ -44,5 +45,9 @@ protected:
     // Projectile 이동 담당
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
     UProjectileMovementComponent* ProjectileMovement;
+
+    //나이아가라 설정
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+    UNiagaraSystem* ExplosionEffect;
 
 };
