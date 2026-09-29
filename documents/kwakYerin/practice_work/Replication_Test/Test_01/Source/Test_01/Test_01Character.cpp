@@ -107,6 +107,12 @@ void ATest_01Character::Look(const FInputActionValue& Value)
 
 void ATest_01Character::DoMove(float Right, float Forward)
 {
+	//죽으면 움직이지 못하게 하기
+	if (bIsDead)
+	{
+		return;
+	}
+
 	if (GetController() != nullptr)
 	{
 		// find out which way is forward
