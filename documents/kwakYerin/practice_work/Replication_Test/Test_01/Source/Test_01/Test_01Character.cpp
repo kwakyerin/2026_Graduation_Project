@@ -107,6 +107,12 @@ void ATest_01Character::Look(const FInputActionValue& Value)
 
 void ATest_01Character::DoMove(float Right, float Forward)
 {
+	//죽으면 움직이지 못하게 하기
+	if (bIsDead)
+	{
+		return;
+	}
+
 	if (GetController() != nullptr)
 	{
 		// find out which way is forward
@@ -183,11 +189,22 @@ void ATest_01Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	// Health
 	DOREPLIFETIME(ATest_01Character, CurrentHealth);
+
+	//fps 발사체 시스템 사망 처리
+	DOREPLIFETIME(ATest_01Character, bIsDead);
 }
 
 //fps 관련 함수
 void ATest_01Character::Fire()
 {
+
+	//죽은 상태에서 마우스 클릭했을 때 뜨는 텍스트
+	if (bIsDead)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cannot Fire : Player is Dead"));
+		return;
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Fire() | Authority=%d | LocallyControlled=%d"),
 		HasAuthority(),
 		IsLocallyControlled());
@@ -206,6 +223,12 @@ void ATest_01Character::Multicast_FireFX_Implementation()
 
 void ATest_01Character::Server_Fire_Implementation()
 {
+	//죽었을 때 아무 행동 못하게 막기(죽은 사람만 대상)
+	if (bIsDead)
+	{
+		return;
+	}
+
 	if (!ProjectileClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ProjectileClass is NULL"));
@@ -255,9 +278,19 @@ void ATest_01Character::SetCurrentHealth(float HealthValue)
 	OnHealthUpdate();
 
 	// HP가 0이 되면 사망(서버에서 사망판정하기)
-	if (CurrentHealth <= 0.0f)
+	if (CurrentHealth <= 0.0f && !bIsDead)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PLAYER DEAD | %s"), *GetNameSafe(this));
+		bIsDead = true;
+
+		UE_LOG(LogTemp,Warning,TEXT("SERVER : bIsDead = TRUE | %s"),*GetNameSafe(this));
+
+		GetWorldTimerManager().SetTimer(
+			RespawnTimerHandle,
+			this,
+			&ATest_01Character::RespawnPlayer,
+			3.0f,
+			false
+		);
 	}
 }
 
@@ -277,9 +310,35 @@ float ATest_01Character::TakeDamage(float DamageTaken,struct FDamageEvent const&
 	AController* EventInstigator,
 	AActor* DamageCauser)
 {
+	// 이미 죽은 상태라면 데미지 처리하지 않음
+	if (bIsDead)
+	{
+		return 0.0f;
+	}
+
 	float DamageApplied = CurrentHealth - DamageTaken;
 
 	SetCurrentHealth(DamageApplied);
 
 	return DamageApplied;
+}
+
+//사망 상태 출력
+void ATest_01Character::OnRep_IsDead()
+{
+	UE_LOG(LogTemp,Warning,TEXT("CLIENT : IsDead = %d"),bIsDead);
+}
+
+//리스폰 상태 변경(서버에서만)
+void ATest_01Character::RespawnPlayer()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	CurrentHealth = MaxHealth;
+	bIsDead = false;
+
+	UE_LOG(LogTemp,Warning,TEXT("SERVER : PLAYER RESPAWN | Health = %.1f"),CurrentHealth);
 }

@@ -34,6 +34,10 @@ protected:
         const FHitResult& Hit
     );
 
+    // 폭발 이펙트를 서버와 클라이언트에서 실행
+    UFUNCTION(NetMulticast, Reliable)
+    void Multicast_ExplosionFX(FVector Location, FRotator Rotation);
+
     // 충돌 판정
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
     USphereComponent* SphereComponent;
