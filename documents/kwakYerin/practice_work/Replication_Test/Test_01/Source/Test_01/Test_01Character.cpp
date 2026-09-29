@@ -191,6 +191,14 @@ void ATest_01Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 //fps 관련 함수
 void ATest_01Character::Fire()
 {
+
+	//죽은 상태에서 마우스 클릭했을 때 뜨는 텍스트
+	if (bIsDead)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cannot Fire : Player is Dead"));
+		return;
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Fire() | Authority=%d | LocallyControlled=%d"),
 		HasAuthority(),
 		IsLocallyControlled());
@@ -209,6 +217,12 @@ void ATest_01Character::Multicast_FireFX_Implementation()
 
 void ATest_01Character::Server_Fire_Implementation()
 {
+	//죽었을 때 아무 행동 못하게 막기(죽은 사람만 대상)
+	if (bIsDead)
+	{
+		return;
+	}
+
 	if (!ProjectileClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ProjectileClass is NULL"));
