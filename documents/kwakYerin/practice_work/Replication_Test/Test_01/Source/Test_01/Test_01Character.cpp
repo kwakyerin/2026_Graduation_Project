@@ -283,15 +283,15 @@ void ATest_01Character::SetCurrentHealth(float HealthValue)
 		bIsDead = true;
 
 		UE_LOG(LogTemp,Warning,TEXT("SERVER : bIsDead = TRUE | %s"),*GetNameSafe(this));
-	}
 
-	GetWorldTimerManager().SetTimer(
-		RespawnTimerHandle,
-		this,
-		&ATest_01Character::RespawnPlayer,
-		3.0f,
-		false
-	);
+		GetWorldTimerManager().SetTimer(
+			RespawnTimerHandle,
+			this,
+			&ATest_01Character::RespawnPlayer,
+			3.0f,
+			false
+		);
+	}
 }
 
 void ATest_01Character::OnRep_CurrentHealth()
