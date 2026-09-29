@@ -162,6 +162,11 @@ protected:
 	// 체력 변경 후 공통 처리
 	void OnHealthUpdate();
 
+	// 리스폰
+	void RespawnPlayer();
+
+	FTimerHandle RespawnTimerHandle;
+
 public:
 
 	// 최대 체력 가져오기

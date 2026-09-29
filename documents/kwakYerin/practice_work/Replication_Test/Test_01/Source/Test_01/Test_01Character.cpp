@@ -284,6 +284,14 @@ void ATest_01Character::SetCurrentHealth(float HealthValue)
 
 		UE_LOG(LogTemp,Warning,TEXT("SERVER : bIsDead = TRUE | %s"),*GetNameSafe(this));
 	}
+
+	GetWorldTimerManager().SetTimer(
+		RespawnTimerHandle,
+		this,
+		&ATest_01Character::RespawnPlayer,
+		3.0f,
+		false
+	);
 }
 
 void ATest_01Character::OnRep_CurrentHealth()
@@ -319,4 +327,18 @@ float ATest_01Character::TakeDamage(float DamageTaken,struct FDamageEvent const&
 void ATest_01Character::OnRep_IsDead()
 {
 	UE_LOG(LogTemp,Warning,TEXT("CLIENT : IsDead = %d"),bIsDead);
+}
+
+//리스폰 상태 변경(서버에서만)
+void ATest_01Character::RespawnPlayer()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	CurrentHealth = MaxHealth;
+	bIsDead = false;
+
+	UE_LOG(LogTemp,Warning,TEXT("SERVER : PLAYER RESPAWN | Health = %.1f"),CurrentHealth);
 }
