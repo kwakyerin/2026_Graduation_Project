@@ -10,7 +10,6 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 
-
 // Sets default values
 ATestProjectile::ATestProjectile()
 {
@@ -91,13 +90,38 @@ void ATestProjectile::OnHit(UPrimitiveComponent* HitComponent,AActor* OtherActor
     }
 
     //총돌한 위치에 나이아가라 폭발함
-    if (ExplosionEffect){
+    /*if (ExplosionEffect){
         UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),ExplosionEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
-    }
+    }*/
+
+    //멀티캐스트 나이아가라 폭발
+    Multicast_ExplosionFX(Hit.ImpactPoint,Hit.ImpactNormal.Rotation());
 
     // 총알이 벽이나 캐릭터에 맞으면 바로 사라짐
     Destroy();
 
+}
+
+//폭발파티클 멀티캐스트 연결
+void ATestProjectile::Multicast_ExplosionFX_Implementation(FVector Location, FRotator Rotation)
+{
+    //클라 서버 둘 다 작동되는지 확인차 집어넣음
+    UE_LOG(
+        LogTemp,
+        Warning,
+        TEXT("MULTICAST EXPLOSION | Authority=%d | Effect=%s"),
+        HasAuthority(),
+        *GetNameSafe(ExplosionEffect)
+    );
+
+    if (ExplosionEffect) {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
+            ExplosionEffect,
+            Location,
+            Rotation
+        );
+    }
 }
 
 ////일단 damage 안넣고 테스트 용으로 로그만 찍어보기
