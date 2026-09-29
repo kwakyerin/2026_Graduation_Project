@@ -183,6 +183,9 @@ void ATest_01Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	// Health
 	DOREPLIFETIME(ATest_01Character, CurrentHealth);
+
+	//fps 발사체 시스템 사망 처리
+	DOREPLIFETIME(ATest_01Character, bIsDead);
 }
 
 //fps 관련 함수
@@ -255,9 +258,11 @@ void ATest_01Character::SetCurrentHealth(float HealthValue)
 	OnHealthUpdate();
 
 	// HP가 0이 되면 사망(서버에서 사망판정하기)
-	if (CurrentHealth <= 0.0f)
+	if (CurrentHealth <= 0.0f && !bIsDead)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PLAYER DEAD | %s"), *GetNameSafe(this));
+		bIsDead = true;
+
+		UE_LOG(LogTemp,Warning,TEXT("SERVER : bIsDead = TRUE | %s"),*GetNameSafe(this));
 	}
 }
 
@@ -277,9 +282,21 @@ float ATest_01Character::TakeDamage(float DamageTaken,struct FDamageEvent const&
 	AController* EventInstigator,
 	AActor* DamageCauser)
 {
+	// 이미 죽은 상태라면 데미지 처리하지 않음
+	if (bIsDead)
+	{
+		return 0.0f;
+	}
+
 	float DamageApplied = CurrentHealth - DamageTaken;
 
 	SetCurrentHealth(DamageApplied);
 
 	return DamageApplied;
+}
+
+//사망 상태 출력
+void ATest_01Character::OnRep_IsDead()
+{
+	UE_LOG(LogTemp,Warning,TEXT("CLIENT : IsDead = %d"),bIsDead);
 }

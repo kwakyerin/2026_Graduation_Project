@@ -152,6 +152,13 @@ protected:
 	UFUNCTION()
 	void OnRep_CurrentHealth();
 
+	// 사망 상태
+	UPROPERTY(ReplicatedUsing = OnRep_IsDead)
+	bool bIsDead = false;
+
+	UFUNCTION()
+	void OnRep_IsDead();
+
 	// 체력 변경 후 공통 처리
 	void OnHealthUpdate();
 
