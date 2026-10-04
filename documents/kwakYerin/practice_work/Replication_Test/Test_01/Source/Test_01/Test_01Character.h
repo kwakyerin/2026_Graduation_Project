@@ -116,6 +116,12 @@ public:
 	UFUNCTION(NetMulticast,Unreliable)
 	void Multicast_FireFX();
 
+	// 화물 상호작용
+	void InteractCargo();
+
+	UFUNCTION(Server, Reliable)
+	void Server_InteractCargo();
+
 	//Repnotify 현상 확인(함수 관리용)
 	// Replication 등록
 	virtual void GetLifetimeReplicatedProps(

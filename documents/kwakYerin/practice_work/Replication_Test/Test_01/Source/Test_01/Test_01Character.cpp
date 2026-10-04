@@ -78,6 +78,9 @@ void ATest_01Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		//RPC 연습용 E키 실습
 		PlayerInputComponent->BindKey(EKeys::F,IE_Pressed,this,&ATest_01Character::TestRPC);
 
+		//화물 연습용
+		PlayerInputComponent->BindKey(EKeys::E,IE_Pressed,this,&ATest_01Character::InteractCargo);
+
 		//왼쪽 마우스
 		PlayerInputComponent->BindKey(EKeys::LeftMouseButton,IE_Pressed,this,& ATest_01Character::Fire);
 	}
@@ -341,4 +344,18 @@ void ATest_01Character::RespawnPlayer()
 	bIsDead = false;
 
 	UE_LOG(LogTemp,Warning,TEXT("SERVER : PLAYER RESPAWN | Health = %.1f"),CurrentHealth);
+}
+
+//화물 연습
+
+void ATest_01Character::InteractCargo()
+{
+	UE_LOG(LogTemp,Warning,TEXT("InteractCargo | Authority=%d"),HasAuthority());
+
+	Server_InteractCargo();
+}
+
+void ATest_01Character::Server_InteractCargo_Implementation()
+{
+	UE_LOG(LogTemp,Warning,TEXT("SERVER : Cargo Interaction | Authority=%d"),HasAuthority());
 }
