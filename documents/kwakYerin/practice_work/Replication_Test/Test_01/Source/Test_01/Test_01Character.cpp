@@ -1,5 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+#include "CargoActor.h"
+#include "Kismet/GameplayStatics.h"
 #include "Test_01Character.h"
 #include "TestProjectile.h"
 #include "Engine/LocalPlayer.h"
@@ -14,7 +16,6 @@
 #include "InputCoreTypes.h" //컨트롤러
 #include "DrawDebugHelpers.h" //fps 라인트레이스 표식
 #include "Net/UnrealNetwork.h"
-#include "TestProjectile.h"
 #include "Test_01.h"
 
 ATest_01Character::ATest_01Character()
@@ -357,5 +358,38 @@ void ATest_01Character::InteractCargo()
 
 void ATest_01Character::Server_InteractCargo_Implementation()
 {
-	UE_LOG(LogTemp,Warning,TEXT("SERVER : Cargo Interaction | Authority=%d"),HasAuthority());
+	UE_LOG(LogTemp, Warning,
+		TEXT("SERVER : Cargo Interaction | Authority=%d"),
+		HasAuthority());
+
+	TArray<AActor*> CargoActors;
+
+	UGameplayStatics::GetAllActorsOfClass(
+		GetWorld(),
+		ACargoActor::StaticClass(),
+		CargoActors
+	);
+
+	for (AActor* Actor : CargoActors)
+	{
+		ACargoActor* Cargo = Cast<ACargoActor>(Actor);
+
+		if (Cargo)
+		{
+			float Distance = FVector::Dist(GetActorLocation(),Cargo->GetActorLocation());
+
+			UE_LOG(LogTemp, Warning,TEXT("Cargo Distance = %.1f"),Distance);
+
+			if (Distance <= 200.0f)
+			{
+				Cargo->AttachToActor(this,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+				Cargo->SetActorRelativeLocation(FVector(100.0f, 0.0f, 50.0f));
+
+				UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Picked Up"));
+
+				break;
+			}
+		}
+	}
 }
