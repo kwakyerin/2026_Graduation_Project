@@ -1,8 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+#include "Test_01Character.h"
 #include "CargoActor.h"
 #include "Kismet/GameplayStatics.h"
-#include "Test_01Character.h"
 #include "TestProjectile.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
@@ -385,6 +385,8 @@ void ATest_01Character::Server_InteractCargo_Implementation()
 				Cargo->AttachToActor(this,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
 				Cargo->SetActorRelativeLocation(FVector(100.0f, 0.0f, 50.0f));
+
+				CarriedCargo = Cargo;
 
 				UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Picked Up"));
 
