@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 class ATestProjectile;
+class ACargoActor;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -172,6 +173,10 @@ protected:
 	void RespawnPlayer();
 
 	FTimerHandle RespawnTimerHandle;
+
+	//화물 설정
+	UPROPERTY()
+	ACargoActor* CarriedCargo = nullptr;
 
 public:
 
