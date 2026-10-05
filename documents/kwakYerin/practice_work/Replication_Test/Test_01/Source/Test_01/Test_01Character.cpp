@@ -348,7 +348,6 @@ void ATest_01Character::RespawnPlayer()
 }
 
 //화물 연습
-
 void ATest_01Character::InteractCargo()
 {
 	UE_LOG(LogTemp,Warning,TEXT("InteractCargo | Authority=%d"),HasAuthority());
@@ -358,22 +357,34 @@ void ATest_01Character::InteractCargo()
 
 void ATest_01Character::Server_InteractCargo_Implementation()
 {
-	UE_LOG(LogTemp, Warning,
-		TEXT("SERVER : Cargo Interaction | Authority=%d"),
-		HasAuthority());
+	UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Interaction | Authority=%d"),HasAuthority());
 
+	//이미 화물을 들고 있다면 떨어뜨리기
+	if (CarriedCargo)
+	{
+		CarriedCargo->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+		//플레이어 앞쪽에 내려놓기
+		FVector DropLocation =GetActorLocation() +GetActorForwardVector() * 150.0f;
+
+		CarriedCargo->SetActorLocation(DropLocation);
+
+		UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Dropped"));
+
+		//아무 화물도 들고 있지 않음
+		CarriedCargo = nullptr;
+
+		return;
+	}
+
+	//화물 들어올리기 설정
 	TArray<AActor*> CargoActors;
 
-	UGameplayStatics::GetAllActorsOfClass(
-		GetWorld(),
-		ACargoActor::StaticClass(),
-		CargoActors
-	);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACargoActor::StaticClass(),CargoActors);
 
 	for (AActor* Actor : CargoActors)
 	{
 		ACargoActor* Cargo = Cast<ACargoActor>(Actor);
-
 		if (Cargo)
 		{
 			float Distance = FVector::Dist(GetActorLocation(),Cargo->GetActorLocation());
@@ -383,11 +394,9 @@ void ATest_01Character::Server_InteractCargo_Implementation()
 			if (Distance <= 200.0f)
 			{
 				Cargo->AttachToActor(this,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-
 				Cargo->SetActorRelativeLocation(FVector(100.0f, 0.0f, 50.0f));
 
 				CarriedCargo = Cargo;
-
 				UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Picked Up"));
 
 				break;
