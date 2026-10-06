@@ -25,3 +25,12 @@ void ARouteGraphManager::Tick(float DeltaTime)
 
 }
 
+FRoutePathResult ARouteGraphManager::FindPathAStar(int32 StartIndex, int32 GoalIndex)
+{
+	FRoutePathResult Result;
+	if (!Nodes.IsValidIndex(StartIndex) ||!Nodes.IsValidIndex(GoalIndex))
+	{
+		return Result;
+	}
+	return Result;
+}
