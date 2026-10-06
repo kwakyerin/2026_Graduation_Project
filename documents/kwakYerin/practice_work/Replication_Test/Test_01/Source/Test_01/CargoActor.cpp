@@ -14,6 +14,7 @@ ACargoActor::ACargoActor()
 
 	//네트워크 설정
 	bReplicates = true;
+	SetReplicateMovement(true);
 
 	//화물 충돌 설정
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("boxcomponent"));
