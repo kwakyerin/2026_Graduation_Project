@@ -54,7 +54,7 @@ struct FRoutePathResult
     UPROPERTY(BlueprintReadOnly, Category = "Route")
     TArray<int32> EdgeIndices;
 
-    //경로 그리기
+    //지나갈 노드의 좌표
     UPROPERTY(BlueprintReadOnly, Category = "Route")
     TArray<FVector> PathPoints;
 
