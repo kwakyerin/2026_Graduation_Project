@@ -123,6 +123,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_InteractCargo();
 
+	void SetCarrier(ATest_01Character* NewCarrier);
+
 	//Repnotify 현상 확인(함수 관리용)
 	// Replication 등록
 	virtual void GetLifetimeReplicatedProps(
