@@ -28,8 +28,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cargo")
 	UStaticMeshComponent* MeshComponent;
 
+	UPROPERTY(ReplicatedUsing = OnRep_IsCarried)
+	bool bIsCarried = false;
+
+	UFUNCTION()
+	void OnRep_IsCarried();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	//서버에서 화물상태 변경
+	void SetIsCarried(bool bNewIsCarried);
+
+	//리플리케이션 등록
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 
 };

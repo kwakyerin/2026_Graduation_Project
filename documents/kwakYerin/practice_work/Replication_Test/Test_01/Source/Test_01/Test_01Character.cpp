@@ -357,7 +357,8 @@ void ATest_01Character::InteractCargo()
 
 void ATest_01Character::Server_InteractCargo_Implementation()
 {
-	UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Interaction | Authority=%d"),HasAuthority());
+	//UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Interaction | Authority=%d"),HasAuthority());
+	UE_LOG(LogTemp, Warning, TEXT("서버 상호작용 | 서버 소유권=%d"), HasAuthority());
 
 	//이미 화물을 들고 있다면 떨어뜨리기
 	if (CarriedCargo)
@@ -389,7 +390,7 @@ void ATest_01Character::Server_InteractCargo_Implementation()
 		{
 			float Distance = FVector::Dist(GetActorLocation(),Cargo->GetActorLocation());
 
-			UE_LOG(LogTemp, Warning,TEXT("Cargo Distance = %.1f"),Distance);
+			UE_LOG(LogTemp, Warning,TEXT("화물과의 거리 = %.1f"),Distance);
 
 			if (Distance <= 200.0f)
 			{

@@ -4,6 +4,7 @@
 #include "CargoActor.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ACargoActor::ACargoActor()
@@ -37,3 +38,23 @@ void ACargoActor::Tick(float DeltaTime)
 
 }
 
+void ACargoActor::SetIsCarried(bool bNewIsCarried)
+{
+	if (HasAuthority()) {
+		bIsCarried = bNewIsCarried;
+
+		UE_LOG(LogTemp,Warning,TEXT("SERVER : Cargo IsCarried = %d"),bIsCarried);
+	}
+}
+
+void ACargoActor::OnRep_IsCarried()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Client : Cargo isCarried = %d"), bIsCarried);
+}
+
+void ACargoActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACargoActor, bIsCarried);
+}

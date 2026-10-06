@@ -178,6 +178,8 @@ protected:
 	UPROPERTY()
 	ACargoActor* CarriedCargo = nullptr;
 
+
+
 public:
 
 	// 최대 체력 가져오기
