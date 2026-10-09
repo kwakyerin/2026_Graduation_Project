@@ -9,8 +9,6 @@
 USTRUCT(BlueprintType)
 struct FRouteNode {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
-	int32 NodeId = -1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
 	FVector WorldLocation = FVector::ZeroVector;
@@ -22,15 +20,12 @@ struct FRouteEdge
 {
     GENERATED_BODY()
 
-    // 간선을 구분하는 고유 번호
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
-    int32 EdgeId = -1;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
-    int32 FromNodeId = -1;
+    int32 FromNodeIndex = -1;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
-    int32 ToNodeId = -1;
+    int32 ToNodeIndex = -1;
 
     // 해당 구간의 이동 속도: cm/s
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route",
@@ -41,6 +36,33 @@ struct FRouteEdge
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
     bool bTraversable = true;
 };
+
+USTRUCT(BlueprintType)
+struct FRoutePathResult
+{
+    GENERATED_BODY()
+
+    //목적지까지 경로 찾았는지
+    UPROPERTY(BlueprintReadOnly, Category = "Route")
+    bool bFound = false;
+
+    //어떤 지점을 거치는지
+    UPROPERTY(BlueprintReadOnly, Category = "Route")
+    TArray<int32> NodeIndices;
+
+    //어떤 길을 택했는지 확인
+    UPROPERTY(BlueprintReadOnly, Category = "Route")
+    TArray<int32> EdgeIndices;
+
+    //지나갈 노드의 좌표
+    UPROPERTY(BlueprintReadOnly, Category = "Route")
+    TArray<FVector> PathPoints;
+
+    //예상시간 표시
+    UPROPERTY(BlueprintReadOnly, Category = "Route")
+    float TotalTime = 0.0f;
+};
+
 UCLASS()
 class PRACTICE_API ARouteGraphManager : public AActor
 {
@@ -55,6 +77,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route Graph")
     TArray<FRouteEdge> Edges;
+
+    UFUNCTION(BlueprintCallable, Category = "Route Graph")
+    FRoutePathResult FindPathAStar(int32 StartIndex,int32 GoalIndex);
 
 protected:
 	// Called when the game starts or when spawned
