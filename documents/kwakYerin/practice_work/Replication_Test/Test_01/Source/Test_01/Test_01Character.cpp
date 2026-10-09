@@ -362,13 +362,14 @@ void ATest_01Character::Server_InteractCargo_Implementation()
 	//이미 화물을 들고 있다면 떨어뜨리기
 	if (CarriedCargo)
 	{
-		// 소유권 해제하기
+		//소유권 해제하기
 		CarriedCargo->SetOwner(nullptr);
 
 		CarriedCargo->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 		//플레이어 앞쪽에 내려놓기
 		FVector DropLocation =GetActorLocation() +GetActorForwardVector() * 150.0f;
+		DropLocation.Z -= 42.0f;
 
 		CarriedCargo->SetActorLocation(DropLocation);
 
@@ -400,7 +401,7 @@ void ATest_01Character::Server_InteractCargo_Implementation()
 			if (Distance <= 200.0f)
 			{
 
-				// 만약 다른 플레이어가 들고 있으면 들지 못하게 하기
+				//만약 다른 플레이어가 들고 있으면 들지 못하게 하기
 				if (Cargo->GetOwner() != nullptr)
 				{
 					UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo already has Owner = %s"),*GetNameSafe(Cargo->GetOwner()));
@@ -417,7 +418,7 @@ void ATest_01Character::Server_InteractCargo_Implementation()
 
 				CarriedCargo = Cargo;
 
-				// 들고 있는 상태를 클라이언트에 리플리케이션
+				//들고 있는 상태를 클라이언트에 리플리케이션
 				Cargo->SetIsCarried(true);
 
 				UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Picked Up"));

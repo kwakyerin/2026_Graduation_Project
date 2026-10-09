@@ -124,18 +124,4 @@ void ATestProjectile::Multicast_ExplosionFX_Implementation(FVector Location, FRo
     }
 }
 
-////일단 damage 안넣고 테스트 용으로 로그만 찍어보기
-//void ATestProjectile::OnHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,
-//    UPrimitiveComponent* OtherComponent,
-//    FVector NormalImpulse,
-//    const FHitResult& Hit)
-//{
-//    if (!HasAuthority())
-//    {
-//        return;
-//    }
-//
-//    UE_LOG(LogTemp, Warning, TEXT("PROJECTILE HIT : %s"), *GetNameSafe(OtherActor));
-//}
-
 
