@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Config">
+      <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEditorPerProjectUserSettings.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultInput.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Gradu_Pro.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{F31BBDD1-B3E8-3BCC-9652-680E16935819}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\Gradu_Pro.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\Gradu_ProEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <Filter Include="Source\Gradu_Pro">
+      <UniqueIdentifier>{C976790F-306D-358B-A207-5B0D9421D5CD}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\Gradu_Pro\Gradu_Pro.Build.cs">
+      <Filter>Source\Gradu_Pro</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Gradu_Pro.cpp">
+      <Filter>Source\Gradu_Pro</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Gradu_Pro.h">
+      <Filter>Source\Gradu_Pro</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Gradu_ProCharacter.cpp">
+      <Filter>Source\Gradu_Pro</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Gradu_ProCharacter.h">
+      <Filter>Source\Gradu_Pro</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Gradu_ProGameMode.cpp">
+      <Filter>Source\Gradu_Pro</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Gradu_ProGameMode.h">
+      <Filter>Source\Gradu_Pro</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Gradu_ProPlayerController.cpp">
+      <Filter>Source\Gradu_Pro</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Gradu_ProPlayerController.h">
+      <Filter>Source\Gradu_Pro</Filter>
+    </ClInclude>
+    <Filter Include="Source\Gradu_Pro\Variant_Combat">
+      <UniqueIdentifier>{93CF9F44-88A3-3ABF-9F29-AF2797BF6F9F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Gradu_Pro\Variant_Combat\AI">
+      <UniqueIdentifier>{9D446A42-48AE-3366-9BBB-42D9F6A8A8BF}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\CombatAIController.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\CombatAIController.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\CombatEnemy.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\CombatEnemy.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\CombatEnemySpawner.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\CombatEnemySpawner.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\CombatStateTreeUtility.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\CombatStateTreeUtility.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\EnvQueryContext_Danger.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\EnvQueryContext_Danger.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\EnvQueryContext_Player.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\AI\EnvQueryContext_Player.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\AI</Filter>
+    </ClInclude>
+    <Filter Include="Source\Gradu_Pro\Variant_Combat\Animation">
+      <UniqueIdentifier>{B26A3D7F-82CD-3754-BBAA-855CE41F0337}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Animation\AnimNotify_CheckChargedAttack.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Animation</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Animation\AnimNotify_CheckChargedAttack.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Animation</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Animation\AnimNotify_CheckCombo.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Animation</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Animation\AnimNotify_CheckCombo.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Animation</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Animation\AnimNotify_DoAttackTrace.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Animation</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Animation\AnimNotify_DoAttackTrace.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Animation</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\CombatCharacter.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\CombatCharacter.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\CombatGameMode.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\CombatGameMode.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\CombatPlayerController.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\CombatPlayerController.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat</Filter>
+    </ClInclude>
+    <Filter Include="Source\Gradu_Pro\Variant_Combat\Gameplay">
+      <UniqueIdentifier>{245DE40F-356A-3496-9E8F-75684FB43C51}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Gameplay\CombatActivationVolume.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Gameplay</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Gameplay\CombatActivationVolume.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Gameplay</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Gameplay\CombatCheckpointVolume.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Gameplay</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Gameplay\CombatCheckpointVolume.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Gameplay</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Gameplay\CombatDamageableBox.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Gameplay</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Gameplay\CombatDamageableBox.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Gameplay</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Gameplay\CombatDummy.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Gameplay</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Gameplay\CombatDummy.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Gameplay</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Gameplay\CombatLavaFloor.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Gameplay</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Gameplay\CombatLavaFloor.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Gameplay</Filter>
+    </ClInclude>
+    <Filter Include="Source\Gradu_Pro\Variant_Combat\Interfaces">
+      <UniqueIdentifier>{BF3A55CB-720B-3BA9-AA18-42D51FE0899F}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Interfaces\CombatActivatable.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Interfaces</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Interfaces\CombatActivatable.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Interfaces</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Interfaces\CombatAttacker.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Interfaces</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Interfaces\CombatAttacker.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Interfaces</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\Interfaces\CombatDamageable.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Interfaces</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\Interfaces\CombatDamageable.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\Interfaces</Filter>
+    </ClInclude>
+    <Filter Include="Source\Gradu_Pro\Variant_Combat\UI">
+      <UniqueIdentifier>{B7740253-2A96-368E-9698-CD9E0E7737F3}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Combat\UI\CombatLifeBar.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Combat\UI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Combat\UI\CombatLifeBar.h">
+      <Filter>Source\Gradu_Pro\Variant_Combat\UI</Filter>
+    </ClInclude>
+    <Filter Include="Source\Gradu_Pro\Variant_Platforming">
+      <UniqueIdentifier>{5E91B504-3EAF-3B8F-9A27-C5FFEA60180D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Gradu_Pro\Variant_Platforming\Animation">
+      <UniqueIdentifier>{D65041CD-0985-341E-BB0D-F89203FEBF22}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Platforming\Animation\AnimNotify_EndDash.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Platforming\Animation</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Platforming\Animation\AnimNotify_EndDash.h">
+      <Filter>Source\Gradu_Pro\Variant_Platforming\Animation</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Platforming\PlatformingCharacter.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Platforming</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Platforming\PlatformingCharacter.h">
+      <Filter>Source\Gradu_Pro\Variant_Platforming</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Platforming\PlatformingGameMode.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Platforming</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Platforming\PlatformingGameMode.h">
+      <Filter>Source\Gradu_Pro\Variant_Platforming</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_Platforming\PlatformingPlayerController.cpp">
+      <Filter>Source\Gradu_Pro\Variant_Platforming</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_Platforming\PlatformingPlayerController.h">
+      <Filter>Source\Gradu_Pro\Variant_Platforming</Filter>
+    </ClInclude>
+    <Filter Include="Source\Gradu_Pro\Variant_SideScrolling">
+      <UniqueIdentifier>{2D015A21-BDE5-300B-AF51-ECE73DF6CF18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Gradu_Pro\Variant_SideScrolling\AI">
+      <UniqueIdentifier>{6491DD48-BC49-3A7C-8514-72D6A36291A8}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\AI\SideScrollingAIController.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\AI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\AI\SideScrollingAIController.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\AI</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\AI\SideScrollingNPC.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\AI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\AI\SideScrollingNPC.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\AI</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\AI\SideScrollingStateTreeUtility.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\AI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\AI\SideScrollingStateTreeUtility.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\AI</Filter>
+    </ClInclude>
+    <Filter Include="Source\Gradu_Pro\Variant_SideScrolling\Gameplay">
+      <UniqueIdentifier>{A03E8F4A-DA2F-3403-B3D9-8F8AABB6276C}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\Gameplay\SideScrollingJumpPad.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\Gameplay</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\Gameplay\SideScrollingJumpPad.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\Gameplay</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\Gameplay\SideScrollingMovingPlatform.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\Gameplay</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\Gameplay\SideScrollingMovingPlatform.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\Gameplay</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\Gameplay\SideScrollingPickup.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\Gameplay</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\Gameplay\SideScrollingPickup.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\Gameplay</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\Gameplay\SideScrollingSoftPlatform.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\Gameplay</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\Gameplay\SideScrollingSoftPlatform.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\Gameplay</Filter>
+    </ClInclude>
+    <Filter Include="Source\Gradu_Pro\Variant_SideScrolling\Interfaces">
+      <UniqueIdentifier>{793BCEDF-082B-3515-82EC-5CC1C8D9B514}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\Interfaces\SideScrollingInteractable.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\Interfaces</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\Interfaces\SideScrollingInteractable.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\Interfaces</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\SideScrollingCameraManager.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\SideScrollingCameraManager.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\SideScrollingCharacter.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\SideScrollingCharacter.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\SideScrollingGameMode.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\SideScrollingGameMode.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\SideScrollingPlayerController.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\SideScrollingPlayerController.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling</Filter>
+    </ClInclude>
+    <Filter Include="Source\Gradu_Pro\Variant_SideScrolling\UI">
+      <UniqueIdentifier>{E114CCDF-ADA0-37DC-AD03-70939C4400CA}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\UI\SideScrollingUI.cpp">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\UI</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Gradu_Pro\Variant_SideScrolling\UI\SideScrollingUI.h">
+      <Filter>Source\Gradu_Pro\Variant_SideScrolling\UI</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,14 @@
+{
+	"Targets": [
+		{
+			"Name": "Gradu_Pro",
+			"Path": "..\\Source\\Gradu_Pro.Target.cs",
+			"Type": "Game"
+		},
+		{
+			"Name": "Gradu_ProEditor",
+			"Path": "..\\Source\\Gradu_ProEditor.Target.cs",
+			"Type": "Editor"
+		}
+	]
+}

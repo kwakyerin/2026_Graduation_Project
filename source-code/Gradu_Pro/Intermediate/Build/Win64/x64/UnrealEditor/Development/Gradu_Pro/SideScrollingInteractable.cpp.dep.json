@@ -1,0 +1,15 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\graduation_proj\\source-code\\gradu_pro\\source\\gradu_pro\\variant_sidescrolling\\interfaces\\sidescrollinginteractable.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\graduation_proj\\source-code\\gradu_pro\\intermediate\\build\\win64\\x64\\gradu_proeditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.valexpapi.cpp20.h.pch",
+        "Includes": [
+            "c:\\graduation_proj\\source-code\\gradu_pro\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\gradu_pro\\definitions.gradu_pro.h",
+            "c:\\graduation_proj\\source-code\\gradu_pro\\source\\gradu_pro\\variant_sidescrolling\\interfaces\\sidescrollinginteractable.h",
+            "c:\\graduation_proj\\source-code\\gradu_pro\\intermediate\\build\\win64\\unrealeditor\\inc\\gradu_pro\\uht\\sidescrollinginteractable.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
