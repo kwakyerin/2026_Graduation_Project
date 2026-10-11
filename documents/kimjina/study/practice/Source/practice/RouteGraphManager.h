@@ -88,5 +88,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+private:
+    float CalculateHeuristic(int32 NodeIndex,int32 GoalIndex,float MaxSpeed) const;
 };
