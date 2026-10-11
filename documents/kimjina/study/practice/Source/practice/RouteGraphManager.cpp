@@ -2,6 +2,7 @@
 
 
 #include "RouteGraphManager.h"
+#include "Algo/Reverse.h"
 
 // Sets default values
 ARouteGraphManager::ARouteGraphManager()
@@ -46,7 +47,25 @@ void ARouteGraphManager::BeginPlay()
 	SecondEdge.MoveSpeed = 500.0f;
 	Edges.Add(SecondEdge);
 
-	FindPathAStar(0, 2);
+	const FRoutePathResult PathResult = FindPathAStar(0, 2);
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("[AStar Result] Found=%s, Time=%.2f, Points=%d"),
+		PathResult.bFound ? TEXT("true") : TEXT("false"),
+		PathResult.TotalTime,
+		PathResult.PathPoints.Num());
+
+	for (int32 NodeIndex : PathResult.NodeIndices)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[AStar Path] Node=%d"), NodeIndex);
+	}
+
+	for (int32 EdgeIndex : PathResult.EdgeIndices)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[AStar Path] Edge=%d"), EdgeIndex);
+	}
 	
 }
 
@@ -131,13 +150,57 @@ FRoutePathResult ARouteGraphManager::FindPathAStar(int32 StartIndex, int32 GoalI
 		UE_LOG(LogTemp, Warning,TEXT("[AStar] Select Node=%d, G=%.2f, F=%.2f"),CurrentIndex,GCosts[CurrentIndex],BestF);
 		if (CurrentIndex == GoalIndex)
 		{
-			UE_LOG(LogTemp, Warning,
-				TEXT("[AStar] Goal reached! Node=%d, TotalTime=%.2f seconds"),
-				CurrentIndex,
-				GCosts[CurrentIndex]);
+			TArray<int32> ReversedNodes;
+			TArray<int32> ReversedEdges;
 
-			break;
+			int32 TraceIndex = GoalIndex;
+			ReversedNodes.Add(TraceIndex);
+
+			// 목적지에서 출발점까지 역추적
+			while (TraceIndex != StartIndex)
+			{
+				const int32 PreviousEdgeIndex = PreviousEdges[TraceIndex];
+
+				// 잘못된 기록이나 순환에 대한 방어 처리
+				if (!Edges.IsValidIndex(PreviousEdgeIndex) ||
+					ReversedEdges.Num() >= Nodes.Num())
+				{
+					return Result;
+				}
+
+				const FRouteEdge& PreviousEdge = Edges[PreviousEdgeIndex];
+
+				if (PreviousEdge.ToNodeIndex != TraceIndex ||!Nodes.IsValidIndex(PreviousEdge.FromNodeIndex))
+				{
+					return Result;
+				}
+
+				// 현재 노드로 들어온 간선 저장
+				ReversedEdges.Add(PreviousEdgeIndex);
+
+				// 그 간선의 출발 노드로 이동
+				TraceIndex = PreviousEdge.FromNodeIndex;
+				ReversedNodes.Add(TraceIndex);
+			}
+
+			// 출발점 → 목적지 순서로 변경
+			Algo::Reverse(ReversedNodes);
+			Algo::Reverse(ReversedEdges);
+
+			// 결과 구조체에 저장
+			Result.NodeIndices = ReversedNodes;
+			Result.EdgeIndices = ReversedEdges;
+			Result.TotalTime = GCosts[GoalIndex];
+
+			for (int32 NodeIndex : Result.NodeIndices)
+			{
+				Result.PathPoints.Add(Nodes[NodeIndex].WorldLocation);
+			}
+
+			Result.bFound = true;
+			return Result;
 		}
+
 		// 현재 노드에서 출발하는 간선들을 확인
 		for (int32 EdgeIndex = 0; EdgeIndex < Edges.Num(); ++EdgeIndex)
 		{
