@@ -49,6 +49,12 @@ void ARouteGraphManager::BeginPlay()
 
 	const FRoutePathResult PathResult = FindPathAStar(0, 2);
 
+	TSet<int32> TestExcludedNodes;
+	TSet<int32> TestExcludedEdges;
+	TestExcludedEdges.Add(1);
+
+	const FRoutePathResult ExcludedResult = FindPathAStarInternal(0,2,TestExcludedNodes,TestExcludedEdges);
+
 	UE_LOG(LogTemp, Warning,
 		TEXT("[AStar Result] Found=%s, Time=%.2f, Points=%d"),
 		PathResult.bFound ? TEXT("true") : TEXT("false"),
@@ -66,7 +72,18 @@ void ARouteGraphManager::BeginPlay()
 		UE_LOG(LogTemp, Warning,
 			TEXT("[AStar Path] Edge=%d"), EdgeIndex);
 	}
-	
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("[Exclude Test] Found=%s, Time=%.2f"),
+		ExcludedResult.bFound ? TEXT("true") : TEXT("false"),
+		ExcludedResult.TotalTime);
+
+	for (int32 NodeIndex : ExcludedResult.NodeIndices)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Exclude Test] Node=%d"), NodeIndex);
+
+	}
 }
 
 // Called every frame
@@ -75,14 +92,28 @@ void ARouteGraphManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+FRoutePathResult ARouteGraphManager::FindPathAStar(int32 StartIndex,int32 GoalIndex)
+{
+	const TSet<int32> ExcludedNodes;
+	const TSet<int32> ExcludedEdges;
 
-FRoutePathResult ARouteGraphManager::FindPathAStar(int32 StartIndex, int32 GoalIndex)
+	return FindPathAStarInternal(StartIndex,GoalIndex,ExcludedNodes,ExcludedEdges);
+}
+
+FRoutePathResult ARouteGraphManager::FindPathAStarInternal(int32 StartIndex, int32 GoalIndex, 
+	const TSet<int32>& ExcludedNodes,const TSet<int32>& ExcludedEdges)
 {
 	FRoutePathResult Result;
 	if (!Nodes.IsValidIndex(StartIndex) ||!Nodes.IsValidIndex(GoalIndex))
 	{
 		return Result;
 	}
+
+	if (ExcludedNodes.Contains(StartIndex) ||ExcludedNodes.Contains(GoalIndex))
+	{
+		return Result;
+	}
+
 	//최소 이동 시간 g값 노드별로 저장할 배열
 	TArray<float> GCosts;
 	GCosts.Init(TNumericLimits<float>::Max(), Nodes.Num());
@@ -162,8 +193,7 @@ FRoutePathResult ARouteGraphManager::FindPathAStar(int32 StartIndex, int32 GoalI
 				const int32 PreviousEdgeIndex = PreviousEdges[TraceIndex];
 
 				// 잘못된 기록이나 순환에 대한 방어 처리
-				if (!Edges.IsValidIndex(PreviousEdgeIndex) ||
-					ReversedEdges.Num() >= Nodes.Num())
+				if (!Edges.IsValidIndex(PreviousEdgeIndex) ||ReversedEdges.Num() >= Nodes.Num())
 				{
 					return Result;
 				}
@@ -207,7 +237,8 @@ FRoutePathResult ARouteGraphManager::FindPathAStar(int32 StartIndex, int32 GoalI
 			const FRouteEdge& Edge = Edges[EdgeIndex];
 
 			// 통행 불가이거나 현재 노드에서 출발하지 않는 간선은 제외
-			if (!Edge.bTraversable ||Edge.FromNodeIndex != CurrentIndex)
+			if (!Edge.bTraversable ||Edge.FromNodeIndex != CurrentIndex|| 
+				ExcludedEdges.Contains(EdgeIndex) || ExcludedNodes.Contains(Edge.ToNodeIndex))
 			{
 				continue;
 			}

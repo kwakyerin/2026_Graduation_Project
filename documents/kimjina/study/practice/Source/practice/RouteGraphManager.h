@@ -90,4 +90,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 private:
     float CalculateHeuristic(int32 NodeIndex,int32 GoalIndex,float MaxSpeed) const;
+    FRoutePathResult FindPathAStarInternal(int32 StartIndex,int32 GoalIndex,const TSet<int32>& ExcludedNodes,const TSet<int32>& ExcludedEdges);
 };
