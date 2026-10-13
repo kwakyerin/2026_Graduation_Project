@@ -4,6 +4,7 @@
 #include "RouteGraphManager.h"
 #include "Algo/Reverse.h"
 #include "yenPathfinder.h"
+#include "RouteNodeActor.h"
 
 // Sets default values
 ARouteGraphManager::ARouteGraphManager()
@@ -17,77 +18,33 @@ ARouteGraphManager::ARouteGraphManager()
 void ARouteGraphManager::BeginPlay()
 {
 	Super::BeginPlay();
-	Nodes.Reset();
-	Edges.Reset();
 
-	// 노드 3개 생성
-	Nodes.SetNum(3);
+	// 맵에 배치한 노드와 연결 정보를 그래프로 변환
+	BuildGraphFromActors();
 
-	Nodes[0].WorldLocation = FVector(0, 0, 0);
-	Nodes[1].WorldLocation = FVector(300, 400, 0);
-	Nodes[2].WorldLocation = FVector(600, 0, 0);
-
-	// 0 → 2: 거리 600cm / 속도 100cm/s = 6초
-	FRouteEdge DirectEdge;
-	DirectEdge.FromNodeIndex = 0;
-	DirectEdge.ToNodeIndex = 2;
-	DirectEdge.MoveSpeed = 100.0f;
-	Edges.Add(DirectEdge);
-
-	// 0 → 1: 거리 500cm / 속도 500cm/s = 1초
-	FRouteEdge FirstEdge;
-	FirstEdge.FromNodeIndex = 0;
-	FirstEdge.ToNodeIndex = 1;
-	FirstEdge.MoveSpeed = 500.0f;
-	Edges.Add(FirstEdge);
-
-	// 1 → 2: 거리 500cm / 속도 500cm/s = 1초
-	FRouteEdge SecondEdge;
-	SecondEdge.FromNodeIndex = 1;
-	SecondEdge.ToNodeIndex = 2;
-	SecondEdge.MoveSpeed = 500.0f;
-	Edges.Add(SecondEdge);
-
-	const FRoutePathResult PathResult = FindPathAStar(0, 2);
-
-	TSet<int32> TestExcludedNodes;
-	TSet<int32> TestExcludedEdges;
-	TestExcludedEdges.Add(1);
-
-	const FRoutePathResult ExcludedResult = FindPathAStarInternal(0,2,TestExcludedNodes,TestExcludedEdges);
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("[AStar Result] Found=%s, Time=%.2f, Points=%d"),
-		PathResult.bFound ? TEXT("true") : TEXT("false"),
-		PathResult.TotalTime,
-		PathResult.PathPoints.Num());
-
-	for (int32 NodeIndex : PathResult.NodeIndices)
+	// 출발·목적지 Actor 확인
+	if (!IsValid(StartNodeActor) || !IsValid(GoalNodeActor))
 	{
 		UE_LOG(LogTemp, Warning,
-			TEXT("[AStar Path] Node=%d"), NodeIndex);
+			TEXT("[Graph] Start or goal actor is missing."));
+		return;
 	}
 
-	for (int32 EdgeIndex : PathResult.EdgeIndices)
+	// Actor가 등록된 배열 위치를 찾기
+	const int32 StartIndex = NodeActors.IndexOfByKey(StartNodeActor);
+	const int32 GoalIndex = NodeActors.IndexOfByKey(GoalNodeActor);
+
+	if (!Nodes.IsValidIndex(StartIndex) ||
+		!Nodes.IsValidIndex(GoalIndex))
 	{
 		UE_LOG(LogTemp, Warning,
-			TEXT("[AStar Path] Edge=%d"), EdgeIndex);
+			TEXT("[Graph] Start or goal is not in the graph."));
+		return;
 	}
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("[Exclude Test] Found=%s, Time=%.2f"),
-		ExcludedResult.bFound ? TEXT("true") : TEXT("false"),
-		ExcludedResult.TotalTime);
-
-	for (int32 NodeIndex : ExcludedResult.NodeIndices)
-	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("[Exclude Test] Node=%d"), NodeIndex);
-
-	}
-
+	// 등록된 그래프에서 여러 경로 탐색
 	const TArray<FRoutePathResult> YenResults =
-		yenPathfinder::FindPaths(*this, 0, 2, 3);
+		yenPathfinder::FindPaths(*this, StartIndex, GoalIndex, 3);
 
 	UE_LOG(LogTemp, Warning,
 		TEXT("[Yen] PathCount=%d"), YenResults.Num());
@@ -97,9 +54,8 @@ void ARouteGraphManager::BeginPlay()
 		const FRoutePathResult& Path = YenResults[i];
 
 		UE_LOG(LogTemp, Warning,
-			TEXT("[Yen] Path=%d, Time=%.2f"),
-			i + 1,
-			Path.TotalTime);
+			TEXT("[Yen] Path=%d, Time=%.2f, Points=%d"),
+			i + 1, Path.TotalTime, Path.PathPoints.Num());
 
 		for (int32 NodeIndex : Path.NodeIndices)
 		{
@@ -302,4 +258,123 @@ float ARouteGraphManager::CalculateHeuristic(int32 NodeIndex, int32 GoalIndex, f
 	const double Distance = FVector::Dist(Nodes[NodeIndex].WorldLocation,Nodes[GoalIndex].WorldLocation);
 
 	return static_cast<float>(Distance / MaxSpeed);
+}
+
+void ARouteGraphManager::BuildGraphFromActors()
+{
+	Nodes.Reset();
+	Edges.Reset();
+
+	// 등록된 Actor가 모두 유효한지 먼저 확인
+	TSet<ARouteNodeActor*> RegisteredActors;
+
+	for (ARouteNodeActor* NodeActor : NodeActors)
+	{
+		if (!IsValid(NodeActor) || RegisteredActors.Contains(NodeActor))
+		{
+			UE_LOG(LogTemp, Warning,
+				TEXT("[Graph] Invalid or duplicate node actor."));
+			return;
+		}
+
+		RegisteredActors.Add(NodeActor);
+	}
+
+	// 1. Actor 위치를 노드 배열에 저장
+	Nodes.SetNum(NodeActors.Num());
+
+	for (int32 i = 0; i < NodeActors.Num(); ++i)
+	{
+		Nodes[i].WorldLocation = NodeActors[i]->GetActorLocation();
+	}
+
+	// 같은 방향의 간선을 중복 생성하지 않도록 추가
+	auto AddEdge = [this](int32 From, int32 To, float Speed)
+		{
+			for (const FRouteEdge& ExistingEdge : Edges)
+			{
+				if (ExistingEdge.FromNodeIndex == From &&
+					ExistingEdge.ToNodeIndex == To)
+				{
+					return;
+				}
+			}
+
+			FRouteEdge Edge;
+			Edge.FromNodeIndex = From;
+			Edge.ToNodeIndex = To;
+			Edge.MoveSpeed = Speed;
+			Edge.bTraversable = true;
+
+			Edges.Add(Edge);
+		};
+
+	// 2. Actor의 연결 정보를 간선 배열에 저장
+	for (int32 FromIndex = 0; FromIndex < NodeActors.Num(); ++FromIndex)
+	{
+		const ARouteNodeActor* NodeActor = NodeActors[FromIndex];
+
+		for (const FRouteNodeConnection& Connection : NodeActor->Connections)
+		{
+			if (!IsValid(Connection.TargetNode))
+			{
+				UE_LOG(LogTemp, Warning,
+					TEXT("[Graph] Missing target at node %d."), FromIndex);
+				continue;
+			}
+
+			const int32 ToIndex =
+				NodeActors.IndexOfByKey(Connection.TargetNode);
+
+			if (ToIndex == INDEX_NONE || ToIndex == FromIndex)
+			{
+				UE_LOG(LogTemp, Warning,
+					TEXT("[Graph] Invalid connection at node %d."), FromIndex);
+				continue;
+			}
+
+			if (!FMath::IsFinite(Connection.MoveSpeed) ||
+				Connection.MoveSpeed <= 0.0f)
+			{
+				UE_LOG(LogTemp, Warning,
+					TEXT("[Graph] Invalid speed at node %d."), FromIndex);
+				continue;
+			}
+
+			AddEdge(FromIndex, ToIndex, Connection.MoveSpeed);
+
+			if (Connection.bBidirectional)
+			{
+				AddEdge(ToIndex, FromIndex, Connection.MoveSpeed);
+			}
+		}
+	}
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("[Graph] Nodes=%d, Edges=%d"),
+		Nodes.Num(), Edges.Num());
+}
+
+TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(int32 K)
+{
+	BuildGraphFromActors();
+
+	if (!IsValid(StartNodeActor) || !IsValid(GoalNodeActor))
+	{
+		return TArray<FRoutePathResult>();
+	}
+
+	const int32 StartIndex =
+		NodeActors.IndexOfByKey(StartNodeActor);
+
+	const int32 GoalIndex =
+		NodeActors.IndexOfByKey(GoalNodeActor);
+
+	if (!Nodes.IsValidIndex(StartIndex) || !Nodes.IsValidIndex(GoalIndex))
+	{
+		return TArray<FRoutePathResult>();
+	}
+
+	return yenPathfinder::FindPaths(
+		*this, StartIndex, GoalIndex, K);
 }

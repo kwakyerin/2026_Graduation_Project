@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "RouteGraphManager.generated.h"
 
+class ARouteNodeActor;
+
 USTRUCT(BlueprintType)
 struct FRouteNode {
 	GENERATED_BODY()
@@ -80,6 +82,24 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Route Graph")
     FRoutePathResult FindPathAStar(int32 StartIndex,int32 GoalIndex);
+
+    // 그래프에 사용할 노드 Actor 목록
+    UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Route Graph")
+    TArray<ARouteNodeActor*> NodeActors;
+
+    // 테스트용 출발 노드
+    UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Route Graph")
+    ARouteNodeActor* StartNodeActor = nullptr;
+
+    // 목적지 노드
+    UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Route Graph")
+    ARouteNodeActor* GoalNodeActor = nullptr;
+
+    // 배치한 Actor의 위치와 연결 정보를 그래프로 변환
+    void BuildGraphFromActors();
+
+    UFUNCTION(BlueprintCallable, Category = "Route Graph")
+    TArray<FRoutePathResult> FindRoutes(int32 K = 3);
 
 protected:
 	// Called when the game starts or when spawned
