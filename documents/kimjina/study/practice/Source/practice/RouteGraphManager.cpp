@@ -3,6 +3,7 @@
 
 #include "RouteGraphManager.h"
 #include "Algo/Reverse.h"
+#include "yenPathfinder.h"
 
 // Sets default values
 ARouteGraphManager::ARouteGraphManager()
@@ -83,6 +84,28 @@ void ARouteGraphManager::BeginPlay()
 		UE_LOG(LogTemp, Warning,
 			TEXT("[Exclude Test] Node=%d"), NodeIndex);
 
+	}
+
+	const TArray<FRoutePathResult> YenResults =
+		yenPathfinder::FindPaths(*this, 0, 2, 3);
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("[Yen] PathCount=%d"), YenResults.Num());
+
+	for (int32 i = 0; i < YenResults.Num(); ++i)
+	{
+		const FRoutePathResult& Path = YenResults[i];
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Yen] Path=%d, Time=%.2f"),
+			i + 1,
+			Path.TotalTime);
+
+		for (int32 NodeIndex : Path.NodeIndices)
+		{
+			UE_LOG(LogTemp, Warning,
+				TEXT("[Yen] Node=%d"), NodeIndex);
+		}
 	}
 }
 
