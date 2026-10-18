@@ -7,6 +7,7 @@
 #include "RouteGraphManager.generated.h"
 
 class ARouteNodeActor;
+class ACharacter;
 
 USTRUCT(BlueprintType)
 struct FRouteNode {
@@ -100,6 +101,8 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Route Graph")
     TArray<FRoutePathResult> FindRoutes(int32 K = 3);
+
+    int32 AddPlayerStartNode(ACharacter* Player);//나중에 확장하기 위함
 
 protected:
 	// Called when the game starts or when spawned

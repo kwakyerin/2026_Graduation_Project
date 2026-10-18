@@ -6,6 +6,11 @@
 #include "yenPathfinder.h"
 #include "RouteNodeActor.h"
 
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 ARouteGraphManager::ARouteGraphManager()
 {
@@ -30,8 +35,11 @@ void ARouteGraphManager::BeginPlay()
 		return;
 	}
 
-	// Actor가 등록된 배열 위치를 찾기
-	const int32 StartIndex = NodeActors.IndexOfByKey(StartNodeActor);
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(this, 0);
+
+	// 발밑 노드를 추가하고 그 인덱스를 출발점으로 사용
+	const int32 StartIndex = AddPlayerStartNode(Player);
+
 	const int32 GoalIndex = NodeActors.IndexOfByKey(GoalNodeActor);
 
 	if (!Nodes.IsValidIndex(StartIndex) ||
@@ -377,4 +385,68 @@ TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(int32 K)
 
 	return yenPathfinder::FindPaths(
 		*this, StartIndex, GoalIndex, K);
+}
+
+int32 ARouteGraphManager::AddPlayerStartNode(ACharacter* Player)
+{
+	// 플레이어와 연결할 노드 확인
+	if (!IsValid(Player) || !IsValid(StartNodeActor))
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Graph] Player or StartNodeActor is missing."));
+		return INDEX_NONE;
+	}
+
+	// StartNodeActor가 그래프에서 몇 번째 노드인지 확인
+	const int32 EntryIndex = NodeActors.IndexOfByKey(StartNodeActor);
+
+	if (!Nodes.IsValidIndex(EntryIndex))
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Graph] Entry node is invalid."));
+		return INDEX_NONE;
+	}
+
+	// 발밑 위치 계산
+	const UCapsuleComponent* Capsule =
+		Player->GetCapsuleComponent();
+
+	const FVector FootLocation =
+		Capsule->GetComponentLocation()
+		- FVector(
+			0.0f,
+			0.0f,
+			Capsule->GetScaledCapsuleHalfHeight());
+
+	// 연결 구간의 이동속도
+	const float MoveSpeed =
+		Player->GetCharacterMovement()->MaxWalkSpeed;
+
+	if (!FMath::IsFinite(MoveSpeed) || MoveSpeed <= 0.0f)
+	{
+		return INDEX_NONE;
+	}
+
+	// 발밑 위치를 새 노드로 추가
+	FRouteNode PlayerNode;
+	PlayerNode.WorldLocation = FootLocation;
+
+	const int32 PlayerStartIndex = Nodes.Add(PlayerNode);
+
+	// 발밑에서 StartNode로 이어지는 간선 추가
+	FRouteEdge EntryEdge;
+	EntryEdge.FromNodeIndex = PlayerStartIndex;
+	EntryEdge.ToNodeIndex = EntryIndex;
+	EntryEdge.MoveSpeed = MoveSpeed;
+	EntryEdge.bTraversable = true;
+
+	Edges.Add(EntryEdge);
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("[Graph] PlayerStart=%d, Entry=%d, Foot=%s"),
+		PlayerStartIndex,
+		EntryIndex,
+		*FootLocation.ToString());
+
+	return PlayerStartIndex;
 }
