@@ -100,7 +100,7 @@ public:
     void BuildGraphFromActors();
 
     UFUNCTION(BlueprintCallable, Category = "Route Graph")
-    TArray<FRoutePathResult> FindRoutes(int32 K = 3);
+    TArray<FRoutePathResult> FindRoutes(ACharacter* Player, int32 K = 3);
 
     int32 AddPlayerStartNode(ACharacter* Player);//나중에 확장하기 위함
 
