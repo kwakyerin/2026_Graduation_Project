@@ -363,7 +363,7 @@ void ARouteGraphManager::BuildGraphFromActors()
 		Nodes.Num(), Edges.Num());
 }
 
-TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(int32 K)
+TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(ACharacter* Player,int32 K)
 {
 	BuildGraphFromActors();
 
@@ -372,8 +372,8 @@ TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(int32 K)
 		return TArray<FRoutePathResult>();
 	}
 
-	const int32 StartIndex =
-		NodeActors.IndexOfByKey(StartNodeActor);
+	const int32 StartIndex = AddPlayerStartNode(Player);
+		
 
 	const int32 GoalIndex =
 		NodeActors.IndexOfByKey(GoalNodeActor);
