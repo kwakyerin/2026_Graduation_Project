@@ -23,6 +23,7 @@ ACargoActor::ACargoActor()
 	//화물 모습
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("meshcomponent"));
 	MeshComponent->SetupAttachment(RootComponent);
+
 }
 
 // Called when the game starts or when spawned
