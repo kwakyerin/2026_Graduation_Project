@@ -51,7 +51,29 @@ void ACargoActor::SetIsCarried(bool bNewIsCarried)
 
 void ACargoActor::OnRep_IsCarried()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Client : Cargo isCarried = %d"), bIsCarried);
+	//오류 확인 로그
+	UE_LOG(LogTemp, Warning,
+		TEXT("CLIENT | IsCarried=%d | Parent=%s | Physics=%d | Location=%s"),
+		bIsCarried,
+		*GetNameSafe(GetAttachParentActor()),
+		BoxComponent->IsSimulatingPhysics(),
+		*GetActorLocation().ToString()
+	);
+
+	//들고있으면 물리 on시키고 내려놓으면 물리 off시키기
+	if (BoxComponent)
+	{
+		BoxComponent->SetSimulatePhysics(!bIsCarried);
+		BoxComponent->SetEnableGravity(!bIsCarried);
+	}
+
+	//확인 로그
+	UE_LOG(LogTemp, Warning,
+		TEXT("CLIENT AFTER | IsCarried=%d | Parent=%s | Physics=%d"),
+		bIsCarried,
+		*GetNameSafe(GetAttachParentActor()),
+		BoxComponent->IsSimulatingPhysics()
+	);
 }
 
 void ACargoActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
