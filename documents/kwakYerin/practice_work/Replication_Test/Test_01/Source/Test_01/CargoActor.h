@@ -44,4 +44,7 @@ public:
 	//리플리케이션 등록
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 
+	//화물 물리적 설정
+	void SetCargoPhysicsEnabled(bool bEnabled);
+
 };

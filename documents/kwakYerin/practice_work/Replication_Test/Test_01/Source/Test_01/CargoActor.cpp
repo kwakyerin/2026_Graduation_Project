@@ -59,3 +59,20 @@ void ACargoActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 
 	DOREPLIFETIME(ACargoActor, bIsCarried);
 }
+
+
+//화물 물리적 설정
+void ACargoActor::SetCargoPhysicsEnabled(bool bEnabled)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (BoxComponent)
+	{
+		BoxComponent->SetSimulatePhysics(bEnabled);
+		BoxComponent->SetEnableGravity(bEnabled);
+	}
+}
+

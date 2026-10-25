@@ -355,36 +355,40 @@ void ATest_01Character::InteractCargo()
 	Server_InteractCargo();
 }
 
+
 void ATest_01Character::Server_InteractCargo_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SERVER : Cargo Interaction | Authority=%d"), HasAuthority());
+	UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Interaction | Authority=%d"),HasAuthority());
 
-	//이미 화물을 들고 있다면 떨어뜨리기
+	//이미 화물을 들고 있다면 내려놓기
 	if (CarriedCargo)
 	{
-		//소유권 해제하기
-		CarriedCargo->SetOwner(nullptr);
+		ACargoActor* Cargo = CarriedCargo;
 
-		CarriedCargo->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		//캐릭터에서 분리
+		Cargo->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
-		//플레이어 앞쪽에 내려놓기
-		FVector DropLocation =GetActorLocation() +GetActorForwardVector() * 150.0f;
-		DropLocation.Z -= 42.0f;
+		//플레이어 앞에 내려놓기
+		FVector DropLocation =GetActorLocation() +GetActorForwardVector() * 150.f;
 
-		CarriedCargo->SetActorLocation(DropLocation);
+		DropLocation.Z -= 42.f;
+		Cargo->SetActorLocation(DropLocation);
 
-		// 놓은 상태를 클라이언트에 리플리케이션
-		CarriedCargo->SetIsCarried(false);
+		//운반 상태 및 소유권 해제
+		Cargo->SetIsCarried(false);
+		Cargo->SetOwner(nullptr);
+
+		//내려놓으면 물리 활성화
+		Cargo->SetCargoPhysicsEnabled(true);
+
+		CarriedCargo = nullptr;
 
 		UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Dropped"));
-
-		//아무 화물도 들고 있지 않음
-		CarriedCargo = nullptr;
 
 		return;
 	}
 
-	//화물 들어올리기 설정
+	//주변 화물 탐색
 	TArray<AActor*> CargoActors;
 
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACargoActor::StaticClass(),CargoActors);
@@ -392,74 +396,60 @@ void ATest_01Character::Server_InteractCargo_Implementation()
 	for (AActor* Actor : CargoActors)
 	{
 		ACargoActor* Cargo = Cast<ACargoActor>(Actor);
-		if (Cargo)
+
+		if (!Cargo)
+			continue;
+
+		float Distance = FVector::Dist(GetActorLocation(),Cargo->GetActorLocation());
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("Cargo=%s | Distance=%.1f | Owner=%s"),
+			*GetNameSafe(Cargo),
+			Distance,
+			*GetNameSafe(Cargo->GetOwner())
+		);
+
+		//200cm 이내의 화물만 집기
+		if (Distance > 200.f)
+			continue;
+
+		//다른 플레이어가 소유 중이면 건너뛰기
+		if (Cargo->GetOwner() != nullptr)
+			continue;
+
+		//부착 전에 물리 비활성화
+		Cargo->SetCargoPhysicsEnabled(false);
+
+		//캐릭터에 부착
+		const bool bAttached = Cargo->AttachToComponent(
+			GetRootComponent(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale
+		);
+
+		UE_LOG(LogTemp, Warning,TEXT("ATTACH RESULT=%d | Parent=%s"),bAttached,*GetNameSafe(Cargo->GetAttachParentActor()));
+
+		//부착 실패 시 원래 상태로 복구
+		if (!bAttached)
 		{
-			float Distance = FVector::Dist(GetActorLocation(),Cargo->GetActorLocation());
+			Cargo->SetCargoPhysicsEnabled(true);
 
-			UE_LOG(LogTemp, Warning,TEXT("Cargo Distance = %.1f"),Distance);
+			UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Attach Failed"));
 
-			if (Distance <= 200.0f)
-			{
-
-				//만약 다른 플레이어가 들고 있으면 들지 못하게 하기
-				if (Cargo->GetOwner() != nullptr)
-				{
-					UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo already has Owner = %s"),*GetNameSafe(Cargo->GetOwner()));
-					continue;
-				}
-
-				//소유자 변경
-				Cargo->SetOwner(this);
-
-				UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Pick Up | Owner = %s"),*GetNameSafe(Cargo->GetOwner()));
-
-				//화물 이상현상 확인 로그
-				UE_LOG(LogTemp, Warning,
-					TEXT("PICKUP | Character=%s | Cargo=%s | CharacterLoc=%s | CargoLoc=%s"),
-					*GetName(),
-					*Cargo->GetName(),
-					*GetActorLocation().ToString(),
-					*Cargo->GetActorLocation().ToString()
-				);
-
-				/*Cargo->AttachToActor(this,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-				Cargo->SetActorRelativeLocation(FVector(100.0f, 0.0f, 50.0f));*/
-
-				//캐릭터에 화물 부착
-				const bool bAttached = Cargo->AttachToComponent(
-					GetRootComponent(),
-					FAttachmentTransformRules::SnapToTargetNotIncludingScale
-				);
-
-				//부착 성공 여부 확인
-				UE_LOG(LogTemp, Warning,
-					TEXT("ATTACH RESULT = %d | Parent = %s"),
-					bAttached,
-					*GetNameSafe(Cargo->GetAttachParentActor())
-				);
-
-				//부착에 성공한 경우에만 상대 위치 설정
-				if (bAttached)
-				{
-					Cargo->SetActorRelativeLocation(FVector(100.0f, 0.0f, 50.0f));
-				}
-
-				//화물 이상현상 확인 로그
-				UE_LOG(LogTemp, Warning,
-					TEXT("ATTACHED | Parent=%s | CargoLoc=%s"),
-					*GetNameSafe(Cargo->GetAttachParentActor()),
-					*Cargo->GetActorLocation().ToString()
-				);
-
-				CarriedCargo = Cargo;
-
-				//들고 있는 상태를 클라이언트에 리플리케이션
-				Cargo->SetIsCarried(true);
-
-				UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Picked Up"));
-
-				break;
-			}
+			continue;
 		}
+
+		//부착 성공 시 상대 위치 설정
+		Cargo->SetActorRelativeLocation(FVector(100.f, 0.f, 50.f));
+
+		//부착 성공 후 소유권 설정
+		Cargo->SetOwner(this);
+
+		//운반 상태 저장
+		CarriedCargo = Cargo;
+		Cargo->SetIsCarried(true);
+
+		UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Picked Up | Cargo=%s"),*GetNameSafe(Cargo));
+
+		break;
 	}
 }
