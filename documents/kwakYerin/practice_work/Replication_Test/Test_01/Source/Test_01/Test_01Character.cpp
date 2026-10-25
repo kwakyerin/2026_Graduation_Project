@@ -413,8 +413,43 @@ void ATest_01Character::Server_InteractCargo_Implementation()
 
 				UE_LOG(LogTemp, Warning,TEXT("SERVER : Cargo Pick Up | Owner = %s"),*GetNameSafe(Cargo->GetOwner()));
 
-				Cargo->AttachToActor(this,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-				Cargo->SetActorRelativeLocation(FVector(100.0f, 0.0f, 50.0f));
+				//화물 이상현상 확인 로그
+				UE_LOG(LogTemp, Warning,
+					TEXT("PICKUP | Character=%s | Cargo=%s | CharacterLoc=%s | CargoLoc=%s"),
+					*GetName(),
+					*Cargo->GetName(),
+					*GetActorLocation().ToString(),
+					*Cargo->GetActorLocation().ToString()
+				);
+
+				/*Cargo->AttachToActor(this,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				Cargo->SetActorRelativeLocation(FVector(100.0f, 0.0f, 50.0f));*/
+
+				//캐릭터에 화물 부착
+				const bool bAttached = Cargo->AttachToComponent(
+					GetRootComponent(),
+					FAttachmentTransformRules::SnapToTargetNotIncludingScale
+				);
+
+				//부착 성공 여부 확인
+				UE_LOG(LogTemp, Warning,
+					TEXT("ATTACH RESULT = %d | Parent = %s"),
+					bAttached,
+					*GetNameSafe(Cargo->GetAttachParentActor())
+				);
+
+				//부착에 성공한 경우에만 상대 위치 설정
+				if (bAttached)
+				{
+					Cargo->SetActorRelativeLocation(FVector(100.0f, 0.0f, 50.0f));
+				}
+
+				//화물 이상현상 확인 로그
+				UE_LOG(LogTemp, Warning,
+					TEXT("ATTACHED | Parent=%s | CargoLoc=%s"),
+					*GetNameSafe(Cargo->GetAttachParentActor()),
+					*Cargo->GetActorLocation().ToString()
+				);
 
 				CarriedCargo = Cargo;
 
