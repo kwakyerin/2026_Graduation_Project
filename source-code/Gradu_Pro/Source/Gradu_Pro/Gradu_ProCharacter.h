@@ -7,6 +7,8 @@
 #include "Logging/LogMacros.h"
 #include "Gradu_ProCharacter.generated.h"
 
+//#include "RouteGraphManager.h"
+
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
@@ -92,5 +94,32 @@ public:
 
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+//여기서부터 동기화
+public:
+
+	//플레이어가 AI 경로 안내를 요청
+	UFUNCTION(BlueprintCallable, Category = "AI Route")
+	void RequestRoute();
+
+	//클라가 서버에 경로 계산 요청
+	UFUNCTION(Server, Unreliable)
+	void Server_RequestRoute();
+
+	//서버에서 계산한 경로 좌표 동기화
+	UPROPERTY(ReplicatedUsing = OnRep_RoutePoints)
+	TArray<FVector_NetQuantize> RoutePoints;
+
+	//클라가 경로 데이터를 수신하면 실행
+	UFUNCTION()
+	void OnRep_RoutePoints();
+
+	//경로 화면에 표시
+	void UpdateRouteVisualization();
+
+	//복제할 변수 등록
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 };
+
 

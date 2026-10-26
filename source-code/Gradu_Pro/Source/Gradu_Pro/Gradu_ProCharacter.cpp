@@ -131,3 +131,32 @@ void AGradu_ProCharacter::DoJumpEnd()
 	// signal the character to stop jumping
 	StopJumping();
 }
+
+
+//여기서부터 동기화 설정 시작
+
+//AI 경로 요청
+void AGradu_ProCharacter::RequestRoute()
+{
+}
+
+//클라 요청 받아서 서버에서 경로 계산
+void AGradu_ProCharacter::Server_RequestRoute_Implementation()
+{
+	//경로 계산 코드는 여기에 ㄱㄱ
+}
+
+//경로 데이터가 복제되면 클라에서 실행
+void AGradu_ProCharacter::OnRep_RoutePoints()
+{
+}
+
+//계산된 경로 화면에 표시
+void AGradu_ProCharacter::UpdateRouteVisualization()
+{
+}
+
+//복제할 변수 등록
+void AGradu_ProCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+}
