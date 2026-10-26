@@ -367,7 +367,7 @@ TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(ACharacter* Player,int32
 {
 	BuildGraphFromActors();
 
-	if (!IsValid(StartNodeActor) || !IsValid(GoalNodeActor))
+	if (!IsValid(StartNodeActor) || !IsValid(GoalNodeActor)|| K <= 0)
 	{
 		return TArray<FRoutePathResult>();
 	}
@@ -375,41 +375,29 @@ TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(ACharacter* Player,int32
 	const int32 StartIndex = AddPlayerStartNode(Player);
 		
 
-	const int32 GoalIndex =
-		NodeActors.IndexOfByKey(GoalNodeActor);
+	const int32 GoalIndex = NodeActors.IndexOfByKey(GoalNodeActor);
 
 	if (!Nodes.IsValidIndex(StartIndex) || !Nodes.IsValidIndex(GoalIndex))
 	{
 		return TArray<FRoutePathResult>();
 	}
 
-	return yenPathfinder::FindPaths(
-		*this, StartIndex, GoalIndex, K);
+	return yenPathfinder::FindPaths(*this, StartIndex, GoalIndex, K);
+	
 }
 
 int32 ARouteGraphManager::AddPlayerStartNode(ACharacter* Player)
 {
 	// 플레이어와 연결할 노드 확인
-	if (!IsValid(Player) || !IsValid(StartNodeActor))
+	if (!IsValid(Player))
 	{
 		UE_LOG(LogTemp, Warning,
-			TEXT("[Graph] Player or StartNodeActor is missing."));
-		return INDEX_NONE;
-	}
-
-	// StartNodeActor가 그래프에서 몇 번째 노드인지 확인
-	const int32 EntryIndex = NodeActors.IndexOfByKey(StartNodeActor);
-
-	if (!Nodes.IsValidIndex(EntryIndex))
-	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("[Graph] Entry node is invalid."));
+			TEXT("[Graph] Player is missing."));
 		return INDEX_NONE;
 	}
 
 	// 발밑 위치 계산
-	const UCapsuleComponent* Capsule =
-		Player->GetCapsuleComponent();
+	const UCapsuleComponent* Capsule = Player->GetCapsuleComponent();
 
 	const FVector FootLocation =
 		Capsule->GetComponentLocation()
@@ -417,7 +405,63 @@ int32 ARouteGraphManager::AddPlayerStartNode(ACharacter* Player)
 			0.0f,
 			0.0f,
 			Capsule->GetScaledCapsuleHalfHeight());
+	// 캐릭터가 바라보는 수평 방향
+	FVector Forward = Player->GetActorForwardVector();
+	Forward.Z = 0.0;
+	Forward = Forward.GetSafeNormal();
 
+	if (Forward.IsNearlyZero())
+	{
+		return INDEX_NONE;
+	}
+
+	// 앞쪽에서 가장 가까운 노드 선택
+	int32 ConnectionIndex = INDEX_NONE;
+	double BestDistanceSquared = TNumericLimits<double>::Max();
+
+	for (int32 i = 0; i < Nodes.Num(); ++i)
+	{
+		FVector ToNode = Nodes[i].WorldLocation - FootLocation;
+		ToNode.Z = 0.0;
+
+		// 수평 위치가 같으면 방향을 판단할 수 없으므로 건너뜀
+		if (ToNode.IsNearlyZero())
+		{
+			continue;
+		}
+
+		const double Dot = FVector::DotProduct(
+			Forward,
+			ToNode.GetSafeNormal());
+
+		// 옆쪽·뒤쪽 노드는 제외
+		if (Dot <= 0.0)
+		{
+			continue;
+		}
+
+		const double DistanceSquared = ToNode.SizeSquared();
+
+		if (DistanceSquared < BestDistanceSquared)
+		{
+			BestDistanceSquared = DistanceSquared;
+			ConnectionIndex = i;
+		}
+	}
+
+	if (ConnectionIndex == INDEX_NONE)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Forward Node] No node in front."));
+		return INDEX_NONE;
+	}
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("[Forward Node] Node=%d, Distance2D=%.2fcm, Forward=%s"),
+		ConnectionIndex,
+		FMath::Sqrt(BestDistanceSquared),
+		*Forward.ToString());
+	
 	// 연결 구간의 이동속도
 	const float MoveSpeed =
 		Player->GetCharacterMovement()->MaxWalkSpeed;
@@ -436,16 +480,16 @@ int32 ARouteGraphManager::AddPlayerStartNode(ACharacter* Player)
 	// 발밑에서 StartNode로 이어지는 간선 추가
 	FRouteEdge EntryEdge;
 	EntryEdge.FromNodeIndex = PlayerStartIndex;
-	EntryEdge.ToNodeIndex = EntryIndex;
+	EntryEdge.ToNodeIndex = ConnectionIndex;
 	EntryEdge.MoveSpeed = MoveSpeed;
 	EntryEdge.bTraversable = true;
 
 	Edges.Add(EntryEdge);
 
 	UE_LOG(LogTemp, Warning,
-		TEXT("[Graph] PlayerStart=%d, Entry=%d, Foot=%s"),
+		TEXT("[Graph] PlayerStart=%d, Connection=%d, Foot=%s"),
 		PlayerStartIndex,
-		EntryIndex,
+		ConnectionIndex,
 		*FootLocation.ToString());
 
 	return PlayerStartIndex;
