@@ -367,7 +367,7 @@ TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(ACharacter* Player,int32
 {
 	BuildGraphFromActors();
 
-	if (!IsValid(StartNodeActor) || !IsValid(GoalNodeActor)|| K <= 0)
+	if (!IsValid(Player) || !IsValid(GoalNodeActor)|| K <= 0)
 	{
 		return TArray<FRoutePathResult>();
 	}
@@ -382,6 +382,81 @@ TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(ACharacter* Player,int32
 		return TArray<FRoutePathResult>();
 	}
 
+	//1.발 밑과 연결된 기존 노드 찾기
+	int32 CurrentEntryIndex = INDEX_NONE;
+
+	for (const FRouteEdge& Edge : Edges)
+	{
+		if (Edge.bTraversable && Edge.FromNodeIndex == StartIndex)
+		{
+			CurrentEntryIndex = Edge.ToNodeIndex;
+			break;
+		}
+	}
+
+	if (CurrentEntryIndex == INDEX_NONE)
+	{
+		return TArray<FRoutePathResult>();
+	}
+
+	// 2. 이 플레이어의 이전 기록 가져오기
+	const TWeakObjectPtr<ACharacter> PlayerKey(Player);
+
+	FRouteEntryState& State =
+		PlayerEntryStates.FindOrAdd(PlayerKey);
+
+	// 3. 연결 노드가 달라졌을 때 기록 갱신
+	if (State.CurrentNodeIndex != CurrentEntryIndex)
+	{
+		const int32 OldEntryIndex = State.CurrentNodeIndex;
+		bool bDirectlyConnected = false;
+
+		// 이전 연결 노드에서 새 연결 노드로 이어지는 길이 있는지 확인
+		for (const FRouteEdge& Edge : Edges)
+		{
+			if (Edge.bTraversable &&Edge.FromNodeIndex == OldEntryIndex &&Edge.ToNodeIndex == CurrentEntryIndex)
+			{
+				bDirectlyConnected = true;
+				break;
+			}
+		}
+
+		// 서로 연결된 노드로 바뀐 경우만 진행 구간으로 기록
+		State.PreviousNodeIndex = bDirectlyConnected ? OldEntryIndex : INDEX_NONE;
+
+		State.CurrentNodeIndex = CurrentEntryIndex;
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Entry Change] Player=%s, Old=%d, New=%d, Previous=%d"),
+			*GetNameSafe(Player),
+			OldEntryIndex,
+			CurrentEntryIndex,
+			State.PreviousNodeIndex);
+	}
+
+	// 4. 현재 연결 노드 → 이전 연결 노드 방향을 임시 차단
+	TArray<int32> BlockedEdgeIndices;
+
+	if (State.PreviousNodeIndex != INDEX_NONE)
+	{
+		for (int32 i = 0; i < Edges.Num(); ++i)
+		{
+			FRouteEdge& Edge = Edges[i];
+
+			if (Edge.bTraversable &&
+				Edge.FromNodeIndex == State.CurrentNodeIndex &&
+				Edge.ToNodeIndex == State.PreviousNodeIndex)
+			{
+				Edge.bTraversable = false;
+				BlockedEdgeIndices.Add(i);
+
+				UE_LOG(LogTemp, Warning,
+					TEXT("[Route Rule] Block %d->%d"),
+					Edge.FromNodeIndex,
+					Edge.ToNodeIndex);
+			}
+		}
+	}
 	return yenPathfinder::FindPaths(*this, StartIndex, GoalIndex, K);
 	
 }
