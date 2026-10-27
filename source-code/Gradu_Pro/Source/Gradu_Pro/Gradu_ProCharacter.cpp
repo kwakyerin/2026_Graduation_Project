@@ -139,6 +139,12 @@ void AGradu_ProCharacter::DoJumpEnd()
 //AI 경로 요청
 void AGradu_ProCharacter::RequestRoute()
 {
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	Server_RequestRoute();
 }
 
 //클라 요청 받아서 서버에서 경로 계산
