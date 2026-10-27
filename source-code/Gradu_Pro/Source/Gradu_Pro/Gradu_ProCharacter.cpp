@@ -1,5 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+#include "RouteGraphManager.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Gradu_ProCharacter.h"
 #include "Engine/LocalPlayer.h"
@@ -150,7 +152,23 @@ void AGradu_ProCharacter::RequestRoute()
 //클라 요청 받아서 서버에서 경로 계산
 void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 {
-	//경로 계산 코드는 여기에 ㄱㄱ
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	//맵에 배치된 경로관리 액처 찾기
+	ARouteGraphManager* Manager =Cast<ARouteGraphManager>(
+			UGameplayStatics::GetActorOfClass(GetWorld(),ARouteGraphManager::StaticClass())
+		);
+
+	//경로 관리액터 없을 시 함수종료 
+	if (!IsValid(Manager))
+	{
+		UE_LOG(LogTemp, Warning,TEXT("[Route] RouteGraphManager not found"));
+
+		return;
+	}
 }
 
 //경로 데이터가 복제되면 클라에서 실행
