@@ -1,9 +1,9 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+#include "Gradu_ProCharacter.h"
 #include "RouteGraphManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
-#include "Gradu_ProCharacter.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -169,6 +169,9 @@ void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 
 		return;
 	}
+
+	//최대 3개 경로 탐색
+	TArray<FRoutePathResult> Results = Manager->FindRoutes(this, 3);
 }
 
 //경로 데이터가 복제되면 클라에서 실행
