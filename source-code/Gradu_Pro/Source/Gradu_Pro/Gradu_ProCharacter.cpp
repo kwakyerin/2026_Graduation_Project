@@ -1,5 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+#include "Net/UnrealNetwork.h"
 #include "Gradu_ProCharacter.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
@@ -159,4 +160,8 @@ void AGradu_ProCharacter::UpdateRouteVisualization()
 //복제할 변수 등록
 void AGradu_ProCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//해당 캐릭터 소유 클라에게만 복제
+	DOREPLIFETIME_CONDITION(AGradu_ProCharacter, RoutePoints, COND_OwnerOnly);
 }
