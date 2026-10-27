@@ -13,5 +13,6 @@ UCLASS()
 class PRACTICE_API ABeeAIController : public AAIController
 {
 	GENERATED_BODY()
-	
+protected:
+	virtual void OnPossess(APawn* InPawn)override;
 };

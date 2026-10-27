@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
+#include "BeeAIController.h"
 
 // Sets default values
 ABeePawn::ABeePawn()
@@ -36,6 +37,7 @@ ABeePawn::ABeePawn()
     FlightMovement->Deceleration = 600.0f;
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+    AIControllerClass = ABeeAIController::StaticClass();
 }
 
 // Called when the game starts or when spawned
