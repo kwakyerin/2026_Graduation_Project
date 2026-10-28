@@ -172,6 +172,14 @@ void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 
 	//최대 3개 경로 탐색
 	TArray<FRoutePathResult> Results = Manager->FindRoutes(this, 3);
+
+	//탐색된 경로가 없을 때
+	if (Results.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning,TEXT("[Route] No routes found"));
+
+		return;
+	}
 }
 
 //경로 데이터가 복제되면 클라에서 실행
