@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Gradu_ProCharacter.h"
+#include "DrawDebugHelpers.h"
 #include "RouteGraphManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -213,7 +214,7 @@ void AGradu_ProCharacter::OnRep_RoutePoints()
 	UE_LOG(LogTemp, Warning,TEXT("[Route] HasAuthority=%d, IsLocallyControlled=%d, Points=%d"),
 		HasAuthority(),IsLocallyControlled(),RoutePoints.Num());
 
-	//자신이 조종하는 플레이어인지 확인
+	//클라에게만 복제(나중에 바꿀 거임)
 	if (!IsLocallyControlled())
 	{
 		return;
@@ -226,6 +227,32 @@ void AGradu_ProCharacter::OnRep_RoutePoints()
 //계산된 경로 화면에 표시
 void AGradu_ProCharacter::UpdateRouteVisualization()
 {
+	UE_LOG(LogTemp, Warning,TEXT("Check"));
+
+	UWorld* World = GetWorld();
+
+	if (!World)
+	{
+		return;
+	}
+
+	if (RoutePoints.Num() < 2)
+	{
+		return;
+	}
+
+	for (int32 i = 0; i < RoutePoints.Num() - 1; ++i)
+	{
+		FVector Start = FVector(RoutePoints[i])+ FVector(0, 0, 20);
+		FVector End = FVector(RoutePoints[i + 1])+ FVector(0, 0, 20);
+
+		DrawDebugLine(World,Start,End,FColor::Green,false,30.0f,0,10.0f);
+
+		//좌표에는 구로 표시
+		DrawDebugSphere(World,Start,30.0f,12,FColor::Red,false,20.0f);
+	}
+
+	UE_LOG(LogTemp, Warning,TEXT("[Route] Visualization completed"));
 }
 
 //복제할 변수 등록
