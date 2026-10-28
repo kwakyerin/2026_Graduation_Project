@@ -180,6 +180,16 @@ void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 
 		return;
 	}
+
+	//이전 경로 데이터 초기화
+	RoutePoints.Empty();
+
+	//첫번째 경로 좌표 저장
+	for (const FVector& Point : Results[0].PathPoints)
+	{
+		RoutePoints.Add(FVector_NetQuantize(Point));
+	}
+
 }
 
 //경로 데이터가 복제되면 클라에서 실행
