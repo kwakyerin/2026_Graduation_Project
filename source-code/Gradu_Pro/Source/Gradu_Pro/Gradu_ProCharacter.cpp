@@ -158,43 +158,69 @@ void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 	}
 
 	//맵에 배치된 경로관리 액처 찾기
-	ARouteGraphManager* Manager =Cast<ARouteGraphManager>(
+	/*ARouteGraphManager* Manager =Cast<ARouteGraphManager>(
 			UGameplayStatics::GetActorOfClass(GetWorld(),ARouteGraphManager::StaticClass())
-		);
+		);*/
 
 	//경로 관리액터 없을 시 함수종료 
-	if (!IsValid(Manager))
+	/*if (!IsValid(Manager))
 	{
 		UE_LOG(LogTemp, Warning,TEXT("[Route] RouteGraphManager not found"));
 
 		return;
-	}
+	}*/
 
 	//최대 3개 경로 탐색
-	TArray<FRoutePathResult> Results = Manager->FindRoutes(this, 3);
+	/*TArray<FRoutePathResult> Results = Manager->FindRoutes(this, 3);*/
 
 	//탐색된 경로가 없을 때
-	if (Results.IsEmpty())
+	/*if (Results.IsEmpty())
 	{
 		UE_LOG(LogTemp, Warning,TEXT("[Route] No routes found"));
 
 		return;
-	}
+	}*/
 
 	//이전 경로 데이터 초기화
 	RoutePoints.Empty();
 
 	//첫번째 경로 좌표 저장
-	for (const FVector& Point : Results[0].PathPoints)
+	/*for (const FVector& Point : Results[0].PathPoints)
 	{
 		RoutePoints.Add(FVector_NetQuantize(Point));
-	}
+	}*/
 
+	//여기까지 나중에 해제(실제 좌표가 없어서 아직 확인x)
+
+	//여기서부터 임시좌표 지정해서 동기화 확인
+	FVector Start = GetActorLocation();
+
+	RoutePoints.Add(FVector_NetQuantize(Start));
+	RoutePoints.Add(FVector_NetQuantize(Start + FVector(300, 0, 0)));
+	RoutePoints.Add(FVector_NetQuantize(Start + FVector(600, 300, 0)));
+
+	//확인로그
+	UE_LOG(LogTemp, Warning,TEXT("[SERVER] Route calculated. Points: %d"),RoutePoints.Num());
+
+	ForceNetUpdate();
 }
 
 //경로 데이터가 복제되면 클라에서 실행
 void AGradu_ProCharacter::OnRep_RoutePoints()
 {
+	//클라 동기화 확인로그
+	UE_LOG(LogTemp, Warning,TEXT("[CLIENT] Route received. Points: %d"),RoutePoints.Num());
+	UE_LOG(LogTemp, Warning,TEXT("[Route] HasAuthority=%d, IsLocallyControlled=%d, Points=%d"),
+		HasAuthority(),IsLocallyControlled(),RoutePoints.Num());
+
+	//자신이 조종하는 플레이어인지 확인
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	//경로 시각화 함수 호출
+	UpdateRouteVisualization();
 }
 
 //계산된 경로 화면에 표시
