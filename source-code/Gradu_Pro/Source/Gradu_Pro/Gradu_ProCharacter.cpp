@@ -203,6 +203,11 @@ void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 	//확인로그
 	UE_LOG(LogTemp, Warning,TEXT("[SERVER] Route calculated. Points: %d"),RoutePoints.Num());
 
+	for (int32 i = 0; i < RoutePoints.Num(); i++)
+	{
+		UE_LOG(LogTemp, Warning,TEXT("[SERVER] Point[%d] = %s"),i,*RoutePoints[i].ToString());
+	}
+
 	//자신이 조종하는 캐릭터 경로만 시각화
 	if (IsLocallyControlled())
 	{
@@ -217,13 +222,20 @@ void AGradu_ProCharacter::OnRep_RoutePoints()
 {
 	//클라 동기화 확인로그
 	UE_LOG(LogTemp, Warning,TEXT("[CLIENT] Route received. Points: %d"),RoutePoints.Num());
-	UE_LOG(LogTemp, Warning,TEXT("[Route] HasAuthority=%d, IsLocallyControlled=%d, Points=%d"),
-		HasAuthority(),IsLocallyControlled(),RoutePoints.Num());
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("[Route] HasAuthority=%d, IsLocallyControlled=%d, Points=%d"),
+		HasAuthority(), IsLocallyControlled(), RoutePoints.Num());
 
 	//자신이 조종하는 캐릭터 경로만 시각화
 	if (!IsLocallyControlled())
 	{
 		return;
+	}
+
+	for (int32 i = 0; i < RoutePoints.Num(); i++)
+	{
+		UE_LOG(LogTemp, Warning,TEXT("[CLIENT] Point[%d] = %s"),i,*RoutePoints[i].ToString());
 	}
 
 	//경로 시각화 함수 호출

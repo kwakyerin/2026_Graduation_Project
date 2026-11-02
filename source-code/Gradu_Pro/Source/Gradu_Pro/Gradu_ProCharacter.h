@@ -7,14 +7,27 @@
 #include "Logging/LogMacros.h"
 #include "Gradu_ProCharacter.generated.h"
 
-//#include "RouteGraphManager.h"
-
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+
+//여러 경로 좌표 저장
+USTRUCT(BlueprintType)
+struct FReplicatedRouteData
+{
+	GENERATED_BODY()
+
+	//모든 경로좌표 순서대로 계산
+	UPROPERTY()
+	TArray<FVector_NetQuantize> Points;
+
+	// 각 경로 좌표 갯수
+	UPROPERTY()
+	TArray<int32> PathLengths;
+};
 
 /**
  *  A simple player-controllable third person character
