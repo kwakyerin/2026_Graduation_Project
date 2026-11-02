@@ -365,106 +365,70 @@ void ARouteGraphManager::BuildGraphFromActors()
 
 TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(ACharacter* Player,int32 K)
 {
-	BuildGraphFromActors();
-
-	if (!IsValid(Player) || !IsValid(GoalNodeActor)|| K <= 0)
+	if (!IsValid(Player) ||
+		!IsValid(StartNodeActor) ||
+		!IsValid(GoalNodeActor) ||
+		K <= 0)
 	{
 		return TArray<FRoutePathResult>();
 	}
 
-	const int32 StartIndex = AddPlayerStartNode(Player);
-		
+	// 기본 그래프를 다시 구성하고 이전 임시 노드 제거
+	BuildGraphFromActors();
 
 	const int32 GoalIndex = NodeActors.IndexOfByKey(GoalNodeActor);
 
-	if (!Nodes.IsValidIndex(StartIndex) || !Nodes.IsValidIndex(GoalIndex))
+	if (!Nodes.IsValidIndex(GoalIndex))
 	{
 		return TArray<FRoutePathResult>();
 	}
 
-	//1.발 밑과 연결된 기존 노드 찾기
-	int32 CurrentEntryIndex = INDEX_NONE;
+	// 발밑 → 지정한 StartNode 연결
+	const int32 StartIndex = AddPlayerStartNode(Player);
 
-	for (const FRouteEdge& Edge : Edges)
-	{
-		if (Edge.bTraversable && Edge.FromNodeIndex == StartIndex)
-		{
-			CurrentEntryIndex = Edge.ToNodeIndex;
-			break;
-		}
-	}
-
-	if (CurrentEntryIndex == INDEX_NONE)
+	if (!Nodes.IsValidIndex(StartIndex))
 	{
 		return TArray<FRoutePathResult>();
 	}
 
-	// 2. 이 플레이어의 이전 기록 가져오기
-	const TWeakObjectPtr<ACharacter> PlayerKey(Player);
+	// 간선 차단 없이 여러 후보 탐색
+	const TArray<FRoutePathResult> Results =yenPathfinder::FindPaths(*this, StartIndex, GoalIndex, K);
 
-	FRouteEntryState& State =
-		PlayerEntryStates.FindOrAdd(PlayerKey);
+	// 실제 반환되는 경로와 시간 확인
+	UE_LOG(LogTemp, Warning,
+		TEXT("[Route Check] Player=%s, Count=%d"),
+		*GetNameSafe(Player),
+		Results.Num());
 
-	// 3. 연결 노드가 달라졌을 때 기록 갱신
-	if (State.CurrentNodeIndex != CurrentEntryIndex)
+	for (int32 i = 0; i < Results.Num(); ++i)
 	{
-		const int32 OldEntryIndex = State.CurrentNodeIndex;
-		bool bDirectlyConnected = false;
+		FString NodeList;
 
-		// 이전 연결 노드에서 새 연결 노드로 이어지는 길이 있는지 확인
-		for (const FRouteEdge& Edge : Edges)
+		for (int32 NodeIndex : Results[i].NodeIndices)
 		{
-			if (Edge.bTraversable &&Edge.FromNodeIndex == OldEntryIndex &&Edge.ToNodeIndex == CurrentEntryIndex)
+			if (!NodeList.IsEmpty())
 			{
-				bDirectlyConnected = true;
-				break;
+				NodeList += TEXT(" -> ");
 			}
+
+			NodeList += FString::FromInt(NodeIndex);
 		}
-
-		// 서로 연결된 노드로 바뀐 경우만 진행 구간으로 기록
-		State.PreviousNodeIndex = bDirectlyConnected ? OldEntryIndex : INDEX_NONE;
-
-		State.CurrentNodeIndex = CurrentEntryIndex;
 
 		UE_LOG(LogTemp, Warning,
-			TEXT("[Entry Change] Player=%s, Old=%d, New=%d, Previous=%d"),
-			*GetNameSafe(Player),
-			OldEntryIndex,
-			CurrentEntryIndex,
-			State.PreviousNodeIndex);
+			TEXT("[Route Check] Path=%d, Nodes=%s, Time=%.2f"),
+			i + 1,
+			*NodeList,
+			Results[i].TotalTime);
 	}
 
-	// 4. 현재 연결 노드 → 이전 연결 노드 방향을 임시 차단
-	TArray<int32> BlockedEdgeIndices;
-
-	if (State.PreviousNodeIndex != INDEX_NONE)
-	{
-		for (int32 i = 0; i < Edges.Num(); ++i)
-		{
-			FRouteEdge& Edge = Edges[i];
-
-			if (Edge.bTraversable &&
-				Edge.FromNodeIndex == State.CurrentNodeIndex &&
-				Edge.ToNodeIndex == State.PreviousNodeIndex)
-			{
-				Edge.bTraversable = false;
-				BlockedEdgeIndices.Add(i);
-
-				UE_LOG(LogTemp, Warning,
-					TEXT("[Route Rule] Block %d->%d"),
-					Edge.FromNodeIndex,
-					Edge.ToNodeIndex);
-			}
-		}
-	}
-	return yenPathfinder::FindPaths(*this, StartIndex, GoalIndex, K);
+	return Results;
 	
 }
 
 int32 ARouteGraphManager::AddPlayerStartNode(ACharacter* Player)
 {
 	// 플레이어와 연결할 노드 확인
-	if (!IsValid(Player))
+	if (!IsValid(Player)||!IsValid(StartNodeActor))
 	{
 		UE_LOG(LogTemp, Warning,
 			TEXT("[Graph] Player is missing."));
@@ -480,8 +444,19 @@ int32 ARouteGraphManager::AddPlayerStartNode(ACharacter* Player)
 			0.0f,
 			0.0f,
 			Capsule->GetScaledCapsuleHalfHeight());
+
+	// 지정한 StartNode의 배열 인덱스 확인
+	const int32 ConnectionIndex =
+		NodeActors.IndexOfByKey(StartNodeActor);
+
+	if (!Nodes.IsValidIndex(ConnectionIndex))
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Graph] StartNodeActor is not in NodeActors."));
+		return INDEX_NONE;
+	}
 	// 캐릭터가 바라보는 수평 방향
-	FVector Forward = Player->GetActorForwardVector();
+	/*FVector Forward = Player->GetActorForwardVector();
 	Forward.Z = 0.0;
 	Forward = Forward.GetSafeNormal();
 
@@ -498,7 +473,9 @@ int32 ARouteGraphManager::AddPlayerStartNode(ACharacter* Player)
 	{
 		FVector ToNode = Nodes[i].WorldLocation - FootLocation;
 		ToNode.Z = 0.0;
+		const int32 ConnectionIndex = NodeActors.IndexOfByKey(StartNodeActor);
 
+	
 		// 수평 위치가 같으면 방향을 판단할 수 없으므로 건너뜀
 		if (ToNode.IsNearlyZero())
 		{
@@ -535,7 +512,8 @@ int32 ARouteGraphManager::AddPlayerStartNode(ACharacter* Player)
 		TEXT("[Forward Node] Node=%d, Distance2D=%.2fcm, Forward=%s"),
 		ConnectionIndex,
 		FMath::Sqrt(BestDistanceSquared),
-		*Forward.ToString());
+		*Forward.ToString()); 
+	*/
 	
 	// 연결 구간의 이동속도
 	const float MoveSpeed =
