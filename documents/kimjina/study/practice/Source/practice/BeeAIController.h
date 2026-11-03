@@ -9,12 +9,15 @@
 /**
  * 
  */
+class UBehaviorTree;
 UCLASS()
 class PRACTICE_API ABeeAIController : public AAIController
 {
 	GENERATED_BODY()
 protected:
 	virtual void OnPossess(APawn* InPawn)override;
+    UPROPERTY(EditDefaultsOnly, Category = "Bee|AI")
+    TObjectPtr<UBehaviorTree> BeeBehaviorTree;
 
 private:
     // Blackboard 초기화 및 BT 실행
