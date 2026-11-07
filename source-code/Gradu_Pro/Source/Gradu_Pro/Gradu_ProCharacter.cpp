@@ -171,7 +171,7 @@ void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 		return;
 	}
 
-	//최대 3개 경로 탐색
+	//경로 
 	TArray<FRoutePathResult> Results = Manager->FindRoutes(this, 3);
 
 	//탐색된 경로가 없을 때
@@ -183,13 +183,39 @@ void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 	}
 
 	//이전 경로 데이터 초기화
-	RoutePoints.Empty();
+	ReplicatedRoutes.Points.Empty();
+	ReplicatedRoutes.PathLengths.Empty();
 
-	//첫번째 경로 좌표 저장
-	for (const FVector& Point : Results[0].PathPoints)
+	//탐색된 경로들을 순서대로 저장
+	for (const FRoutePathResult& Route : Results)
 	{
-		RoutePoints.Add(FVector_NetQuantize(Point));
+		//유효하지 않은 경로는 제외
+		if (!Route.bFound || Route.PathPoints.IsEmpty())
+		{
+			continue;
+		}
+
+		//현재 경로의 좌표 개수 저장
+		ReplicatedRoutes.PathLengths.Add(Route.PathPoints.Num());
+
+		//현재 경로의 모든 좌표 저장
+		for (const FVector& Point : Route.PathPoints)
+		{
+			ReplicatedRoutes.Points.Add(FVector_NetQuantize(Point));
+		}
 	}
+
+	//서버에 저장된 데이터 확인
+	UE_LOG(LogTemp, Warning,TEXT("[SERVER] Routes=%d, TotalPoints=%d"),ReplicatedRoutes.PathLengths.Num(),
+		ReplicatedRoutes.Points.Num());
+
+	//호스트가 조종하는 캐릭터라면 직접 시각화
+	if (IsLocallyControlled())
+	{
+		UpdateRouteVisualization();
+	}
+
+	ForceNetUpdate();
 
 	//여기까지 나중에 해제(실제 좌표가 없어서 아직 확인x)
 
@@ -200,32 +226,22 @@ void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 	RoutePoints.Add(FVector_NetQuantize(Start + FVector(300, 0, 0)));
 	RoutePoints.Add(FVector_NetQuantize(Start + FVector(600, 300, 0)));*/
 
-	//확인로그
-	UE_LOG(LogTemp, Warning,TEXT("[SERVER] Route calculated. Points: %d"),RoutePoints.Num());
-
-	for (int32 i = 0; i < RoutePoints.Num(); i++)
-	{
-		UE_LOG(LogTemp, Warning,TEXT("[SERVER] Point[%d] = %s"),i,*RoutePoints[i].ToString());
-	}
-
 	//자신이 조종하는 캐릭터 경로만 시각화
-	if (IsLocallyControlled())
+	/*if (IsLocallyControlled())
 	{
 		UpdateRouteVisualization();
-	}
+	}*/
+	UE_LOG(LogTemp, Warning,TEXT("[SERVER] IsLocallyControlled=%d"),IsLocallyControlled());
 
 	ForceNetUpdate();
 }
 
 //경로 데이터가 복제되면 클라에서 실행
-void AGradu_ProCharacter::OnRep_RoutePoints()
+void AGradu_ProCharacter::OnRep_Routes()
 {
 	//클라 동기화 확인로그
-	UE_LOG(LogTemp, Warning,TEXT("[CLIENT] Route received. Points: %d"),RoutePoints.Num());
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("[Route] HasAuthority=%d, IsLocallyControlled=%d, Points=%d"),
-		HasAuthority(), IsLocallyControlled(), RoutePoints.Num());
+	UE_LOG(LogTemp, Warning,TEXT("[CLIENT] Routes=%d, Points=%d"),ReplicatedRoutes.PathLengths.Num(),
+		ReplicatedRoutes.Points.Num());
 
 	//자신이 조종하는 캐릭터 경로만 시각화
 	if (!IsLocallyControlled())
@@ -233,20 +249,14 @@ void AGradu_ProCharacter::OnRep_RoutePoints()
 		return;
 	}
 
-	for (int32 i = 0; i < RoutePoints.Num(); i++)
-	{
-		UE_LOG(LogTemp, Warning,TEXT("[CLIENT] Point[%d] = %s"),i,*RoutePoints[i].ToString());
-	}
-
 	//경로 시각화 함수 호출
 	UpdateRouteVisualization();
 }
 
 //계산된 경로 화면에 표시
+// 계산된 여러 경로 화면에 표시
 void AGradu_ProCharacter::UpdateRouteVisualization()
 {
-	UE_LOG(LogTemp, Warning,TEXT("Check"));
-
 	UWorld* World = GetWorld();
 
 	if (!World)
@@ -254,23 +264,58 @@ void AGradu_ProCharacter::UpdateRouteVisualization()
 		return;
 	}
 
-	if (RoutePoints.Num() < 2)
+	// 경로별 색상
+	const FColor RouteColors[3] = {
+		FColor::Green,
+		FColor::Blue,
+		FColor::Yellow
+	};
+
+	// 현재 경로가 시작하는 배열 위치
+	int32 StartIndex = 0;
+
+	// 저장된 경로 개수만큼 반복
+	for (int32 RouteIndex = 0;
+		RouteIndex < ReplicatedRoutes.PathLengths.Num();
+		RouteIndex++)
 	{
-		return;
+		// 현재 경로의 좌표 개수
+		const int32 PointCount =
+			ReplicatedRoutes.PathLengths[RouteIndex];
+
+		// 배열 범위를 벗어나지 않도록 확인
+		if (PointCount <= 0 ||StartIndex > ReplicatedRoutes.Points.Num() ||
+			PointCount > ReplicatedRoutes.Points.Num() - StartIndex)
+		{
+			UE_LOG(LogTemp, Warning,TEXT("[Route] Invalid path data"));
+			return;
+		}
+
+		// 현재 경로 색상
+		const FColor Color = RouteColors[RouteIndex % 3];
+
+		// 현재 경로의 모든 좌표 순회
+		for (int32 i = 0; i < PointCount; i++)
+		{
+			FVector Start =FVector(ReplicatedRoutes.Points[StartIndex + i])+ FVector(0, 0, 20);
+
+			// 좌표마다 빨간 구 표시
+			DrawDebugSphere(World,Start,30.0f,12,FColor::Red,false,30.0f);
+
+			//다음 좌표가 있으면 선으로 연결
+			if (i < PointCount - 1)
+			{
+				FVector End =FVector(ReplicatedRoutes.Points[StartIndex + i + 1])+FVector(0, 0, 20);
+
+				DrawDebugLine(World,Start,End,Color,false,30.0f,0,10.0f);
+			}
+		}
+
+		UE_LOG(LogTemp, Warning,TEXT("[Route] Path %d visualized. Points=%d"),RouteIndex + 1,PointCount);
+
+		//다음 경로의 시작 위치로 이동
+		StartIndex += PointCount;
 	}
-
-	for (int32 i = 0; i < RoutePoints.Num() - 1; ++i)
-	{
-		FVector Start = FVector(RoutePoints[i])+ FVector(0, 0, 20);
-		FVector End = FVector(RoutePoints[i + 1])+ FVector(0, 0, 20);
-
-		DrawDebugLine(World,Start,End,FColor::Green,false,30.0f,0,10.0f);
-
-		//좌표에는 구로 표시
-		DrawDebugSphere(World,Start,30.0f,12,FColor::Red,false,20.0f);
-	}
-
-	UE_LOG(LogTemp, Warning,TEXT("[Route] Visualization completed"));
 }
 
 //복제할 변수 등록
@@ -279,5 +324,5 @@ void AGradu_ProCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	//해당 캐릭터 소유 클라에게만 복제
-	DOREPLIFETIME_CONDITION(AGradu_ProCharacter, RoutePoints, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AGradu_ProCharacter, ReplicatedRoutes, COND_OwnerOnly);
 }

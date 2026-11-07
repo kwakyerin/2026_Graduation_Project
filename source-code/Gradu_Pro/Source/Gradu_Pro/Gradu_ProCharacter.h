@@ -20,7 +20,7 @@ struct FReplicatedRouteData
 {
 	GENERATED_BODY()
 
-	//모든 경로좌표 순서대로 계산
+	//모든 경로 좌표를 순서대로 계산
 	UPROPERTY()
 	TArray<FVector_NetQuantize> Points;
 
@@ -119,13 +119,13 @@ public:
 	UFUNCTION(Server, Unreliable)
 	void Server_RequestRoute();
 
-	//서버에서 계산한 경로 좌표 동기화
-	UPROPERTY(ReplicatedUsing = OnRep_RoutePoints)
-	TArray<FVector_NetQuantize> RoutePoints;
+	//최대 3개 경로 데이터 복제시키기
+	UPROPERTY(ReplicatedUsing = OnRep_Routes)
+	FReplicatedRouteData ReplicatedRoutes;
 
 	//클라가 경로 데이터를 수신하면 실행
 	UFUNCTION()
-	void OnRep_RoutePoints();
+	void OnRep_Routes();
 
 	//경로 화면에 표시
 	void UpdateRouteVisualization();
