@@ -3,6 +3,9 @@
 
 #include "BeeAIController.h"
 
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "UtilityAISelector.h"
 
 void ABeeAIController::OnPossess(APawn* InPawn) {
     Super::OnPossess(InPawn);
@@ -11,12 +14,34 @@ void ABeeAIController::OnPossess(APawn* InPawn) {
         TEXT("[Bee AI] Controller=%s, Pawn=%s"),
         *GetNameSafe(this),
         *GetNameSafe(InPawn));
+
+    InitializeBlackboardAndBehaviorTree();
 }
 
 
 void ABeeAIController::InitializeBlackboardAndBehaviorTree()
 {
     // Blackboard 초기화 및 BT 실행
+    if (!BeeBehaviorTree || !BeeBehaviorTree->BlackboardAsset)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[Bee AI] Missing Behavior Tree or Blackboard asset"));
+        return;
+    }
+
+    UBlackboardComponent* BlackboardComp = nullptr;
+    if (!UseBlackboard(BeeBehaviorTree->BlackboardAsset, BlackboardComp))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[Bee AI] Blackboard initialization failed"));
+        return;
+    }
+
+    UpdateDecision(); 
+
+    if (!RunBehaviorTree(BeeBehaviorTree))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[Bee AI] Failed to start Behavior Tree "));
+    }
+
 }
 
 void ABeeAIController::StartDecisionUpdates()
@@ -32,6 +57,20 @@ void ABeeAIController::StopDecisionUpdates()
 void ABeeAIController::UpdateDecision()
 {
     // 상황 수집 → 점수 계산 → 행동 선택 → Blackboard 반영
+    UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+    if (!BlackboardComp)
+    {
+        return;
+    }
+
+    const FUtilityActionCandidate Candidates[] =
+    {
+        { FName(TEXT("Wander")), 10.0f, true }
+    };
+
+    const FName SelectedAction = UtilityAI::SelectBestAction(MakeArrayView(Candidates));
+
+    BlackboardComp->SetValueAsName(TEXT("SelectedBehavior"), SelectedAction);
 }
 
 void ABeeAIController::GatherDecisionContext()
