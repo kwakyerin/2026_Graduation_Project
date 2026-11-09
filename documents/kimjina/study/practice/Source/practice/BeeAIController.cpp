@@ -34,6 +34,13 @@ void ABeeAIController::InitializeBlackboardAndBehaviorTree()
         UE_LOG(LogTemp, Warning, TEXT("[Bee AI] Blackboard initialization failed"));
         return;
     }
+    //벌의 시작 위치 저장
+    if (APawn* ControlledPawn = GetPawn())
+    {
+        GetBlackboardComponent()->SetValueAsVector(TEXT("HomeLocation"),
+            ControlledPawn->GetActorLocation()
+        );
+    }
 
     UpdateDecision(); 
 
