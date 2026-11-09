@@ -243,6 +243,19 @@ void AGradu_ProCharacter::OnRep_Routes()
 	UE_LOG(LogTemp, Warning,TEXT("[CLIENT] Routes=%d, Points=%d"),ReplicatedRoutes.PathLengths.Num(),
 		ReplicatedRoutes.Points.Num());
 
+	//경로별 좌표 갯수
+	for (int32 i = 0;i < ReplicatedRoutes.PathLengths.Num();i++)
+	{
+		UE_LOG(LogTemp, Warning,TEXT("[CLIENT] Route[%d] PointCount=%d"),i + 1,ReplicatedRoutes.PathLengths[i]);
+	}
+
+
+	//클라에서 받은 모든 좌표 출력로그
+	for (int32 i = 0;i < ReplicatedRoutes.Points.Num();i++)
+	{
+		UE_LOG(LogTemp, Warning,TEXT("[CLIENT] Point[%d]=%s"),i,*ReplicatedRoutes.Points[i].ToString());
+	}
+
 	//자신이 조종하는 캐릭터 경로만 시각화
 	if (!IsLocallyControlled())
 	{
