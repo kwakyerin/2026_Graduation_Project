@@ -5,6 +5,7 @@
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/Pawn.h"
 #include "UtilityAISelector.h"
 
 void ABeeAIController::OnPossess(APawn* InPawn) {
