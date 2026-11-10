@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CargoActor.h"
+#include "Components/BoxComponent.h"
 #include "FragileCargoActor.generated.h"
 
 /**
