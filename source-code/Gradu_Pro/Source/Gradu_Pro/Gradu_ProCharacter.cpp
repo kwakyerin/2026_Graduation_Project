@@ -215,6 +215,18 @@ void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 		UpdateRouteVisualization();
 	}
 
+
+	//서버 데이터 확인 로그
+	for (int32 i = 0;i < ReplicatedRoutes.PathLengths.Num();i++)
+	{
+		UE_LOG(LogTemp, Warning,TEXT("[SERVER] Route[%d] PointCount=%d"),i + 1,ReplicatedRoutes.PathLengths[i]);
+	}
+
+	for (int32 i = 0;i < ReplicatedRoutes.Points.Num();i++)
+	{
+		UE_LOG(LogTemp, Warning,TEXT("[SERVER] Point[%d]=%s"),i,*ReplicatedRoutes.Points[i].ToString());
+	}
+
 	ForceNetUpdate();
 
 	//여기까지 나중에 해제(실제 좌표가 없어서 아직 확인x)
