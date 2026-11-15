@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Gradu_ProCharacter.h"
+#include "CargoActor.h"
+#include "EngineUtils.h"
 #include "DrawDebugHelpers.h"
 #include "RouteGraphManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -57,7 +59,9 @@ AGradu_ProCharacter::AGradu_ProCharacter()
 //화물 상호작용(e키 잘 작동하는지 먼저 확인)
 void AGradu_ProCharacter::InteractCargo()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[Cargo] E Key Pressed"));
+	UE_LOG(LogTemp, Warning,TEXT("[Cargo] InteractCargo | Authority=%d"),HasAuthority());
+
+	Server_InteractCargo();
 }
 
 void AGradu_ProCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -235,20 +239,6 @@ void AGradu_ProCharacter::Server_RequestRoute_Implementation()
 
 	ForceNetUpdate();
 
-	//여기까지 나중에 해제(실제 좌표가 없어서 아직 확인x)
-
-	//여기서부터 임시좌표 지정해서 동기화 확인
-	/*FVector Start = GetActorLocation();
-
-	RoutePoints.Add(FVector_NetQuantize(Start));
-	RoutePoints.Add(FVector_NetQuantize(Start + FVector(300, 0, 0)));
-	RoutePoints.Add(FVector_NetQuantize(Start + FVector(600, 300, 0)));*/
-
-	//자신이 조종하는 캐릭터 경로만 시각화
-	/*if (IsLocallyControlled())
-	{
-		UpdateRouteVisualization();
-	}*/
 	UE_LOG(LogTemp, Warning,TEXT("[SERVER] IsLocallyControlled=%d"),IsLocallyControlled());
 
 	ForceNetUpdate();
@@ -356,4 +346,94 @@ void AGradu_ProCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
 	//해당 캐릭터 소유 클라에게만 복제
 	DOREPLIFETIME_CONDITION(AGradu_ProCharacter, ReplicatedRoutes, COND_OwnerOnly);
+}
+
+void AGradu_ProCharacter::Server_InteractCargo_Implementation()
+{
+	//들고 있는 상태면 내려놓기
+	if (CarriedCargo)
+	{
+		ACargoActor* Cargo = CarriedCargo;
+
+		//플레이어랑 분리
+		Cargo->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+		//플레이어 앞에 내려놓기(임시)
+		FVector DropLocation =GetActorLocation()+GetActorForwardVector() * 150.f;
+
+		DropLocation.Z -= 42.f;
+
+		Cargo->SetActorLocation(DropLocation);
+
+		//운반 상태 및 소유권 해제
+		Cargo->SetIsCarried(false);
+		Cargo->SetOwner(nullptr);
+
+		//물리 활성화
+		Cargo->SetCargoPhysicsEnabled(true);
+
+		CarriedCargo = nullptr;
+
+		UE_LOG(LogTemp, Warning,TEXT("[SERVER] Cargo Dropped"));
+
+		return;
+	}
+
+	//주변 화물 탐색
+	TArray<AActor*> CargoActors;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACargoActor::StaticClass(),CargoActors);
+
+	for (AActor* Actor : CargoActors)
+	{
+		ACargoActor* Cargo = Cast<ACargoActor>(Actor);
+
+		if (!IsValid(Cargo))
+		{
+			continue;
+		}
+
+		float Distance = FVector::Dist(GetActorLocation(),Cargo->GetActorLocation());
+
+		//200cm 이내 화물만 집기
+		if (Distance > 200.f)
+		{
+			continue;
+		}
+
+		//다른 플레이어가 갖고 있으면 패스
+		if (Cargo->GetOwner() != nullptr)
+		{
+			continue;
+		}
+
+		//물리 비활성화
+		Cargo->SetCargoPhysicsEnabled(false);
+
+		// 캐릭터에 화물 부착
+		const bool bAttached = Cargo->AttachToComponent(GetRootComponent(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale
+		);
+
+		if (!bAttached)
+		{
+			Cargo->SetCargoPhysicsEnabled(true);
+			UE_LOG(LogTemp, Warning,TEXT("[SERVER] Cargo Attach Failed"));
+			continue;
+		}
+
+		//부착 위치 설정
+		Cargo->SetActorRelativeLocation(FVector(100.f, 0.f, 50.f));
+
+		//소유권 설정
+		Cargo->SetOwner(this);
+
+		//운반 상태 저장
+		CarriedCargo = Cargo;
+		Cargo->SetIsCarried(true);
+
+		UE_LOG(LogTemp, Warning,TEXT("[SERVER] Cargo Picked Up"));
+
+		break;
+	}
 }

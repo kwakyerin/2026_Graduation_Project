@@ -12,6 +12,8 @@ class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 
+class ACargoActor;
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 //여러 경로 좌표 저장
@@ -73,7 +75,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Cargo")
 	void InteractCargo();
 
+	//서버에서 화물 집기 및 내려놓기 처리
+	UFUNCTION(Server, Reliable)
+	void Server_InteractCargo();
+
 protected:
+
+	// 현재 들고 있는 화물
+	UPROPERTY()
+	ACargoActor* CarriedCargo = nullptr;
 
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
