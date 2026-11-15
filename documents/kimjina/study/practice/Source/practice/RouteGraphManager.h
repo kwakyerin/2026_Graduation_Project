@@ -121,5 +121,6 @@ public:
 private:
     float CalculateHeuristic(int32 NodeIndex,int32 GoalIndex,float MaxSpeed) const;
     TMap<TWeakObjectPtr<ACharacter>, FRouteEntryState> PlayerEntryStates;
+    bool ExpandGraphEdgesWithNavigation(ACharacter* Player);
     
 };
