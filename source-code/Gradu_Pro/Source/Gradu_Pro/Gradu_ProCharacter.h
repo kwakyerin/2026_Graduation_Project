@@ -67,7 +67,11 @@ protected:
 public:
 
 	/** Constructor */
-	AGradu_ProCharacter();	
+	AGradu_ProCharacter();
+
+	//화물 상호작용
+	UFUNCTION(BlueprintCallable, Category = "Cargo")
+	void InteractCargo();
 
 protected:
 

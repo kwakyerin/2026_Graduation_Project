@@ -54,6 +54,12 @@ AGradu_ProCharacter::AGradu_ProCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
 
+//화물 상호작용(e키 잘 작동하는지 먼저 확인)
+void AGradu_ProCharacter::InteractCargo()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[Cargo] E Key Pressed"));
+}
+
 void AGradu_ProCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
