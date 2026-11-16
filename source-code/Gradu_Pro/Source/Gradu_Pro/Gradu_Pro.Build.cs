@@ -18,8 +18,8 @@ public class Gradu_Pro : ModuleRules
 			"StateTreeModule",
 			"GameplayStateTreeModule",
 			"UMG",
-			"Slate"
-		});
+			"Slate",
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
 
