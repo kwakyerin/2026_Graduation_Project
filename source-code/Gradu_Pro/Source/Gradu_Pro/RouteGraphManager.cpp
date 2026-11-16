@@ -2,12 +2,10 @@
 
 
 #include "RouteGraphManager.h"
-#include "Algo/Reverse.h"
 #include "yenPathfinder.h"
 #include "RouteNodeActor.h"
-
-#include "NavigationSystem.h"
-#include "NavigationPath.h"
+#include "AstarPathfinder.h"
+#include "RouteNavigationBuilder.h"
 
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -51,183 +49,9 @@ FRoutePathResult ARouteGraphManager::FindPathAStar(int32 StartIndex,int32 GoalIn
 FRoutePathResult ARouteGraphManager::FindPathAStarInternal(int32 StartIndex, int32 GoalIndex, 
 	const TSet<int32>& ExcludedNodes,const TSet<int32>& ExcludedEdges)
 {
-	FRoutePathResult Result;
-	if (!Nodes.IsValidIndex(StartIndex) ||!Nodes.IsValidIndex(GoalIndex))
-	{
-		return Result;
-	}
-
-	if (ExcludedNodes.Contains(StartIndex) ||ExcludedNodes.Contains(GoalIndex))
-	{
-		return Result;
-	}
-
-	//최소 이동 시간 g값 노드별로 저장할 배열
-	TArray<float> GCosts;
-	GCosts.Init(TNumericLimits<float>::Max(), Nodes.Num());
-
-	GCosts[StartIndex] = 0.0f;
-
-	// 각 노드에 도착할 때 사용한 간선 번호
-	TArray<int32> PreviousEdges;
-	PreviousEdges.Init(-1, Nodes.Num());
-
-	// 앞으로 탐색할 후보 노드 번호
-	TArray<int32> OpenNodes;
-
-	// 출발 노드부터 탐색 시작
-	OpenNodes.Add(StartIndex);
-	float MaxSpeed = 0.0f;
-
-	for (const FRouteEdge& Edge : Edges)
-	{
-		// 통행할 수 없는 간선은 제외
-		if (!Edge.bTraversable)
-		{
-			continue;
-		}
-
-		// 연결된 노드가 실제로 존재하는지 검사
-		if (!Nodes.IsValidIndex(Edge.FromNodeIndex) ||
-			!Nodes.IsValidIndex(Edge.ToNodeIndex))
-		{
-			return Result;
-		}
-		//속도는 양수
-		if (!FMath::IsFinite(Edge.MoveSpeed) ||
-			Edge.MoveSpeed <= 0.0f)
-		{
-			return Result;
-		}
-		//현재까지 찾은 최대 속도와 이번 간선 속도 비교해서 더 큰값으로 
-		MaxSpeed = FMath::Max(MaxSpeed, Edge.MoveSpeed);
-	}
-
-	while (OpenNodes.Num() > 0)
-	{
-		int32 BestOpenIndex = 0;
-		float BestF = TNumericLimits<float>::Max();
-
-		// 후보들의 f값을 비교
-		for (int32 i = 0; i < OpenNodes.Num(); ++i)
-		{
-			const int32 NodeIndex = OpenNodes[i];
-			const float H = CalculateHeuristic(NodeIndex, GoalIndex, MaxSpeed);
-			const float F = GCosts[NodeIndex] + H;
-
-			if (F < BestF)
-			{
-				BestF = F;
-				BestOpenIndex = i;
-			}
-		}
-
-		// 가장 작은 f값을 가진 노드를 선택하고 후보 목록에서 제거
-		const int32 CurrentIndex = OpenNodes[BestOpenIndex];
-		OpenNodes.RemoveAt(BestOpenIndex);
-
-		UE_LOG(LogTemp, Warning,TEXT("[AStar] Select Node=%d, G=%.2f, F=%.2f"),CurrentIndex,GCosts[CurrentIndex],BestF);
-		if (CurrentIndex == GoalIndex)
-		{
-			TArray<int32> ReversedNodes;
-			TArray<int32> ReversedEdges;
-
-			int32 TraceIndex = GoalIndex;
-			ReversedNodes.Add(TraceIndex);
-
-			// 목적지에서 출발점까지 역추적
-			while (TraceIndex != StartIndex)
-			{
-				const int32 PreviousEdgeIndex = PreviousEdges[TraceIndex];
-
-				// 잘못된 기록이나 순환에 대한 방어 처리
-				if (!Edges.IsValidIndex(PreviousEdgeIndex) ||ReversedEdges.Num() >= Nodes.Num())
-				{
-					return Result;
-				}
-
-				const FRouteEdge& PreviousEdge = Edges[PreviousEdgeIndex];
-
-				if (PreviousEdge.ToNodeIndex != TraceIndex ||!Nodes.IsValidIndex(PreviousEdge.FromNodeIndex))
-				{
-					return Result;
-				}
-
-				// 현재 노드로 들어온 간선 저장
-				ReversedEdges.Add(PreviousEdgeIndex);
-
-				// 그 간선의 출발 노드로 이동
-				TraceIndex = PreviousEdge.FromNodeIndex;
-				ReversedNodes.Add(TraceIndex);
-			}
-
-			// 출발점 → 목적지 순서로 변경
-			Algo::Reverse(ReversedNodes);
-			Algo::Reverse(ReversedEdges);
-
-			// 결과 구조체에 저장
-			Result.NodeIndices = ReversedNodes;
-			Result.EdgeIndices = ReversedEdges;
-			Result.TotalTime = GCosts[GoalIndex];
-
-			for (int32 NodeIndex : Result.NodeIndices)
-			{
-				Result.PathPoints.Add(Nodes[NodeIndex].WorldLocation);
-			}
-
-			Result.bFound = true;
-			return Result;
-		}
-
-		// 현재 노드에서 출발하는 간선들을 확인
-		for (int32 EdgeIndex = 0; EdgeIndex < Edges.Num(); ++EdgeIndex)
-		{
-			const FRouteEdge& Edge = Edges[EdgeIndex];
-
-			// 통행 불가이거나 현재 노드에서 출발하지 않는 간선은 제외
-			if (!Edge.bTraversable ||Edge.FromNodeIndex != CurrentIndex|| 
-				ExcludedEdges.Contains(EdgeIndex) || ExcludedNodes.Contains(Edge.ToNodeIndex))
-			{
-				continue;
-			}
-
-			const int32 NextIndex = Edge.ToNodeIndex;
-
-			// 첫 테스트에서는 두 노드 사이를 직선으로 이동한다고 가정
-			const double Distance = FVector::Dist(Nodes[CurrentIndex].WorldLocation,Nodes[NextIndex].WorldLocation);
-
-			const float TravelTime =static_cast<float>(Distance / Edge.MoveSpeed);
-
-			// 현재까지의 시간 + 다음 구간의 시간
-			const float NewG = GCosts[CurrentIndex] + TravelTime;
-
-			// 기존 기록보다 빠른 경로를 발견한 경우에만 갱신
-			if (NewG < GCosts[NextIndex])
-			{
-				GCosts[NextIndex] = NewG;
-				PreviousEdges[NextIndex] = EdgeIndex;
-
-				// 탐색 후보에 추가하되 중복은 방지
-				OpenNodes.AddUnique(NextIndex);
-				UE_LOG(LogTemp, Warning,TEXT("[AStar] Update %d -> %d, Edge=%d, NewG=%.2f"),CurrentIndex,NextIndex,EdgeIndex,NewG);
-			}
-		}
-	}
-	return Result;
+	return AstarPathfinder::FindPath(Nodes,Edges,StartIndex,GoalIndex,ExcludedNodes,ExcludedEdges);
 }
 
-float ARouteGraphManager::CalculateHeuristic(int32 NodeIndex, int32 GoalIndex, float MaxSpeed) const
-{
-	// 최대 속도를 못구했으면 휴리스틱을 0으로 처리
-	if (!FMath::IsFinite(MaxSpeed) || MaxSpeed <= 0.0f)
-	{
-		return 0.0f;
-	}
-
-	const double Distance = FVector::Dist(Nodes[NodeIndex].WorldLocation,Nodes[GoalIndex].WorldLocation);
-
-	return static_cast<float>(Distance / MaxSpeed);
-}
 
 void ARouteGraphManager::BuildGraphFromActors()
 {
@@ -336,8 +160,7 @@ TArray<FRoutePathResult> ARouteGraphManager::FindRoutes(ACharacter* Player,int32
 	const int32 StartIndex = AddPlayerStartNode(Player);
 		
 
-	const int32 GoalIndex =
-		NodeActors.IndexOfByKey(GoalNodeActor);
+	const int32 GoalIndex =NodeActors.IndexOfByKey(GoalNodeActor);
 
 	if (!Nodes.IsValidIndex(StartIndex) || !Nodes.IsValidIndex(GoalIndex))
 	{
@@ -417,107 +240,5 @@ int32 ARouteGraphManager::AddPlayerStartNode(ACharacter* Player)
 
 bool ARouteGraphManager::ExpandGraphEdgesWithNavigation(ACharacter* Player)
 {
-	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetNavigationSystem(this);
-
-	if (!IsValid(Player) || !NavSys)
-	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("[GraphNav] Player or NavigationSystem missing"));
-		return false;
-	}
-
-	const FNavAgentProperties& AgentProps = Player->GetNavAgentPropertiesRef();
-
-	const int32 OriginalNodeCount = Nodes.Num();
-
-	TArray<bool> Projected;
-	Projected.Init(false, OriginalNodeCount);
-
-	// 모든 원래 노드의 좌표를 먼저 NavMesh에 맞춤.
-	// 현재처럼 바닥 위에 배치된 노드를 위한 투영 범위.
-	// 액터 위치는 변경하지 않고 런타임 그래프 좌표만 변경.
-	const FVector ProjectionExtent(10.0f, 10.0f, 100.0f);
-
-	for (int32 i = 0; i < OriginalNodeCount; ++i)
-	{
-		FNavLocation NavLocation;
-
-		if (!NavSys->ProjectPointToNavigation(Nodes[i].WorldLocation,NavLocation,ProjectionExtent,&AgentProps))
-		{
-			UE_LOG(LogTemp, Warning,
-				TEXT("[GraphNav] Node %d projection failed"), i);
-			continue;
-		}
-
-		Nodes[i].WorldLocation = NavLocation.Location;
-		Projected[i] = true;
-	}
-
-	// 기존 직선 간선을 보관하고, 출력 간선은 새로 구성.
-	TArray<FRouteEdge> OriginalEdges = MoveTemp(Edges);
-	Edges.Reset();
-
-	for (const FRouteEdge& Original : OriginalEdges)
-	{
-		const int32 From = Original.FromNodeIndex;
-		const int32 To = Original.ToNodeIndex;
-
-		if (!Original.bTraversable ||!Projected.IsValidIndex(From) ||!Projected.IsValidIndex(To) ||!Projected[From] ||
-			!Projected[To])
-		{
-			continue;
-		}
-
-		UNavigationPath* NavPath =UNavigationSystemV1::FindPathToLocationSynchronously(this,Nodes[From].WorldLocation,
-			Nodes[To].WorldLocation,Player);
-
-		if (!IsValid(NavPath) ||
-			!NavPath->IsValid() ||
-			NavPath->IsPartial() ||
-			NavPath->PathPoints.Num() < 2)
-		{
-			UE_LOG(LogTemp, Warning,
-				TEXT("[GraphNav] Path failed: %d -> %d"), From, To);
-			continue;
-		}
-
-		const TArray<FVector>& Points = NavPath->PathPoints;
-
-		// 위에서 투영한 좌표와 실제 경로 끝점이 맞는지 확인.
-		if (!Points[0].Equals(Nodes[From].WorldLocation, 10.0f) || !Points.Last().Equals(Nodes[To].WorldLocation, 10.0f))
-		{
-			UE_LOG(LogTemp, Warning,
-				TEXT("[GraphNav] Endpoint mismatch: %d -> %d"),
-				From, To);
-			continue;
-		}
-
-		int32 PreviousIndex = From;
-
-		for (int32 i = 1; i < Points.Num(); ++i)
-		{
-			int32 NextIndex = To;
-
-			if (i < Points.Num() - 1)
-			{
-				FRouteNode Corner;
-				Corner.WorldLocation = Points[i];
-				NextIndex = Nodes.Add(Corner);
-			}
-
-			// 원래 연결의 이동 속도를 모든 우회 구간에 유지.
-			FRouteEdge Segment = Original;
-			Segment.FromNodeIndex = PreviousIndex;
-			Segment.ToNodeIndex = NextIndex;
-
-			Edges.Add(Segment);
-			PreviousIndex = NextIndex;
-		}
-	}
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("[GraphNav] Edges: %d -> %d"),
-		OriginalEdges.Num(), Edges.Num());
-
-	return true;
+	return RouteNavigationBuilder::Expand(this,Player,Nodes,Edges);
 }
