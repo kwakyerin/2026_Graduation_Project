@@ -21,7 +21,7 @@ public class Gradu_Pro : ModuleRules
 			"Slate",
         });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { });
+		PrivateDependencyModuleNames.AddRange(new string[] { "NavigationSystem" });
 
 		PublicIncludePaths.AddRange(new string[] {
 			"Gradu_Pro",
