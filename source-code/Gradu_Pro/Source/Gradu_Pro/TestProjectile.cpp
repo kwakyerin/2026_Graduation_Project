@@ -59,6 +59,9 @@ ATestProjectile::ATestProjectile()
 void ATestProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("[PROJECTILE] BeginPlay | Authority=%d | Location=%s"),HasAuthority(),*GetActorLocation().ToString());
 	
 }
 

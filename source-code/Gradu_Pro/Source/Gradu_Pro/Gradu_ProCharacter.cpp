@@ -61,7 +61,8 @@ AGradu_ProCharacter::AGradu_ProCharacter()
 //화물 상호작용(e키 잘 작동하는지 먼저 확인)
 void AGradu_ProCharacter::InteractCargo()
 {
-	UE_LOG(LogTemp, Warning,TEXT("[Cargo] InteractCargo | Authority=%d"),HasAuthority());
+	UE_LOG(LogTemp, Warning,TEXT("[%s] InteractCargo | Character=%s"),HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"),
+		*GetName());
 
 	Server_InteractCargo();
 }
@@ -438,6 +439,7 @@ void AGradu_ProCharacter::Server_InteractCargo_Implementation()
 		Cargo->SetIsCarried(true);
 
 		UE_LOG(LogTemp, Warning,TEXT("[SERVER] Cargo Picked Up"));
+		UE_LOG(LogTemp, Warning, TEXT("[CARGO] Cargo Picked Up Successfully"));
 
 		break;
 	}
@@ -446,14 +448,16 @@ void AGradu_ProCharacter::Server_InteractCargo_Implementation()
 //여기서부터 발사체 설정
 void AGradu_ProCharacter::Fire()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Fire Called"));
+	UE_LOG(LogTemp, Warning,TEXT("[%s] Fire Called | Character=%s"),HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"),
+		*GetName());
 
 	Server_Fire();
 }
 
 void AGradu_ProCharacter::Server_Fire_Implementation()
 {
-	UE_LOG(LogTemp, Warning,TEXT("SERVER : Fire Request Received | Authority=%d"),HasAuthority());
+	UE_LOG(LogTemp, Warning,TEXT("[SERVER] Fire Request Received | Character=%s | Authority=%d"),*GetName(),
+		HasAuthority());
 
 	if (!ProjectileClass)
 	{
@@ -475,7 +479,7 @@ void AGradu_ProCharacter::Server_Fire_Implementation()
 	//확인로그(중간점검)
 	if (Projectile)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SERVER : Projectile Spawned"));
+		UE_LOG(LogTemp, Warning, TEXT("[PROJECTILE] Projectile Spawned Successfully"));
 	}
 	else
 	{

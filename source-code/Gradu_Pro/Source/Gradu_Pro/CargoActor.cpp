@@ -57,6 +57,8 @@ void ACargoActor::OnRep_IsCarried()
 		BoxComponent->SetSimulatePhysics(!bIsCarried);
 		BoxComponent->SetEnableGravity(!bIsCarried);
 	}
+
+	UE_LOG(LogTemp, Warning,TEXT("[CARGO] CLIENT : IsCarried=%d | Authority=%d"),bIsCarried,HasAuthority());
 }
 
 void ACargoActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
