@@ -13,39 +13,35 @@
 // Sets default values
 ATestProjectile::ATestProjectile()
 {
-    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = true;
 
     // 네트워크 복제(이게 핵심임)
     bReplicates = true;
+    //발사체 이동 정보 클라에 복제
+    SetReplicateMovement(true);
 
     //던졌을 때 공 4초 뒤에 없어짐
     InitialLifeSpan = 4.0f;
 
-    // 충돌체 생성
-    SphereComponent =
-        CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+    //충돌체 생성
+    SphereComponent =CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 
     SphereComponent->InitSphereRadius(15.0f);
     SphereComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 
-    // SphereComponent가 충돌하면 OnHit 함수 실행(무언가에 충돌하면 함수 실행된다는 뜻)
-    SphereComponent->OnComponentHit.AddDynamic(
-        this,
-        &ATestProjectile::OnHit
-    );
+    //SphereComponent가 충돌하면 OnHit 함수 실행(무언가에 충돌하면 함수 실행된다는 뜻)
+    SphereComponent->OnComponentHit.AddDynamic(this,&ATestProjectile::OnHit);
 
     RootComponent = SphereComponent;
 
-    // 보이는 Mesh 생성
-    MeshComponent =
-        CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+    //보이는 Mesh 생성
+    MeshComponent =CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 
     MeshComponent->SetupAttachment(RootComponent);
     MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     // Projectile 이동
-    ProjectileMovement =
-        CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+    ProjectileMovement =CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 
     ProjectileMovement->UpdatedComponent = SphereComponent;
 
