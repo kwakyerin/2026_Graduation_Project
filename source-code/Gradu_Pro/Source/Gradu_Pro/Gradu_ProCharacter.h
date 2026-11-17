@@ -159,6 +159,10 @@ public:
 	//발사 입력 처리
 	void Fire();
 
+	// 서버에 발사 요청
+	UFUNCTION(Server, Reliable)
+	void Server_Fire();
+
 };
 
 

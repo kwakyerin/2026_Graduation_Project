@@ -446,4 +446,11 @@ void AGradu_ProCharacter::Server_InteractCargo_Implementation()
 void AGradu_ProCharacter::Fire()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Fire Called"));
+
+	Server_Fire();
+}
+
+void AGradu_ProCharacter::Server_Fire_Implementation()
+{
+	UE_LOG(LogTemp, Warning,TEXT("SERVER : Fire Request Received | Authority=%d"),HasAuthority());
 }
