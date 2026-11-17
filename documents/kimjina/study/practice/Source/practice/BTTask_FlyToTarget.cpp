@@ -4,7 +4,15 @@
 #include "BTTask_FlyToTarget.h"
 
 UBTTask_FlyToTarget::UBTTask_FlyToTarget() {
-
+	//bt에 표시할 이름
+	NodeName = TEXT("FlyToTarget");
+	//이동 중 반복 처리
+	bNotifyTick = true;
+	//좌표를 목표로 선택 할 수 있도록
+	TargetKey.AddVectorFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_FlyToTarget, TargetKey));
+	//플레이어 공격할 때 , 플레이어를 목표로 지정할 수 있도록
+	TargetKey.AddObjectFilter(this,GET_MEMBER_NAME_CHECKED(UBTTask_FlyToTarget, TargetKey),AActor::StaticClass());
+	TargetKey.SelectedKeyName = TEXT("MoveTarget");
 }
 
 void UBTTask_FlyToTarget:: InitializeFromAsset(UBehaviorTree& Asset){
