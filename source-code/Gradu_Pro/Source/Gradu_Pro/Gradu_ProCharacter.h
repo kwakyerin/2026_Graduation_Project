@@ -149,10 +149,15 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 
+//여기서부터 발사체 설정
 protected:
 	//발사할 발사체 클래스
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<ATestProjectile> ProjectileClass;
+
+public:
+	//발사 입력 처리
+	void Fire();
 
 };
 

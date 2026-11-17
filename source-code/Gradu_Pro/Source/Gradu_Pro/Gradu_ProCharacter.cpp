@@ -2,6 +2,7 @@
 
 #include "Gradu_ProCharacter.h"
 #include "CargoActor.h"
+#include "InputCoreTypes.h"
 #include "EngineUtils.h"
 #include "DrawDebugHelpers.h"
 #include "RouteGraphManager.h"
@@ -79,6 +80,9 @@ void AGradu_ProCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGradu_ProCharacter::Look);
+	
+		//플레이어 컨트롤러키
+		PlayerInputComponent->BindKey(EKeys::LeftMouseButton,IE_Pressed,this,&AGradu_ProCharacter::Fire);
 	}
 	else
 	{
@@ -436,4 +440,10 @@ void AGradu_ProCharacter::Server_InteractCargo_Implementation()
 
 		break;
 	}
+}
+
+//여기서부터 발사체 설정
+void AGradu_ProCharacter::Fire()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Fire Called"));
 }
