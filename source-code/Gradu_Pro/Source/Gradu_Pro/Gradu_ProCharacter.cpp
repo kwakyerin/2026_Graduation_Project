@@ -2,6 +2,7 @@
 
 #include "Gradu_ProCharacter.h"
 #include "CargoActor.h"
+#include "TestProjectile.h"
 #include "InputCoreTypes.h"
 #include "EngineUtils.h"
 #include "DrawDebugHelpers.h"
@@ -453,4 +454,31 @@ void AGradu_ProCharacter::Fire()
 void AGradu_ProCharacter::Server_Fire_Implementation()
 {
 	UE_LOG(LogTemp, Warning,TEXT("SERVER : Fire Request Received | Authority=%d"),HasAuthority());
+
+	if (!ProjectileClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ProjectileClass is NULL"));
+		return;
+	}
+
+	FVector SpawnLocation =GetActorLocation() +GetActorForwardVector() * 100.0f +FVector(0.0f, 0.0f, 50.0f);
+
+	FRotator SpawnRotation = GetControlRotation();
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+
+	ATestProjectile* Projectile =GetWorld()->SpawnActor<ATestProjectile>(ProjectileClass,
+			SpawnLocation,SpawnRotation,SpawnParams);
+
+	//확인로그(중간점검)
+	if (Projectile)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SERVER : Projectile Spawned"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SERVER : Projectile Spawn Failed"));
+	}
 }
