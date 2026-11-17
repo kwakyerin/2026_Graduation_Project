@@ -83,7 +83,7 @@ public:
 protected:
 
 	// 현재 들고 있는 화물
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	ACargoActor* CarriedCargo = nullptr;
 
 	/** Initialize input action bindings */

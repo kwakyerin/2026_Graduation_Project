@@ -350,8 +350,11 @@ void AGradu_ProCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	//해당 캐릭터 소유 클라에게만 복제
+	//ai 경로 복제
 	DOREPLIFETIME_CONDITION(AGradu_ProCharacter, ReplicatedRoutes, COND_OwnerOnly);
+
+	//화물 포인터 복제
+	DOREPLIFETIME(AGradu_ProCharacter, CarriedCargo);
 }
 
 void AGradu_ProCharacter::Server_InteractCargo_Implementation()
@@ -448,6 +451,13 @@ void AGradu_ProCharacter::Server_InteractCargo_Implementation()
 //여기서부터 발사체 설정
 void AGradu_ProCharacter::Fire()
 {
+	//화물 운반 중 발사 막아놓기
+	if (CarriedCargo != nullptr)
+	{
+		UE_LOG(LogTemp, Warning,TEXT("[%s] Fire Blocked - Carrying Cargo"),HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"));
+		return;
+	}
+
 	UE_LOG(LogTemp, Warning,TEXT("[%s] Fire Called | Character=%s"),HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"),
 		*GetName());
 
@@ -456,8 +466,15 @@ void AGradu_ProCharacter::Fire()
 
 void AGradu_ProCharacter::Server_Fire_Implementation()
 {
-	UE_LOG(LogTemp, Warning,TEXT("[SERVER] Fire Request Received | Character=%s | Authority=%d"),*GetName(),
-		HasAuthority());
+	/*UE_LOG(LogTemp, Warning,TEXT("[SERVER] Fire Request Received | Character=%s | Authority=%d"),*GetName(),
+		HasAuthority());*/
+
+	//서버에서 최종검사하기
+	if (CarriedCargo != nullptr)
+	{
+		UE_LOG(LogTemp, Warning,TEXT("[SERVER] Fire Rejected - Carrying Cargo | Character=%s"),*GetName());
+		return;
+	}
 
 	if (!ProjectileClass)
 	{
