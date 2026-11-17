@@ -13,6 +13,7 @@ class UInputAction;
 struct FInputActionValue;
 
 class ACargoActor;
+class ATestProjectile;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -146,6 +147,12 @@ public:
 
 	//복제할 변수 등록
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
+protected:
+	//발사할 발사체 클래스
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<ATestProjectile> ProjectileClass;
 
 };
 
