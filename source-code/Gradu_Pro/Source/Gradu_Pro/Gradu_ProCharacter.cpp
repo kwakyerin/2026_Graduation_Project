@@ -526,3 +526,12 @@ void AGradu_ProCharacter::Server_Fire_Implementation(FVector_NetQuantize TargetL
 		UE_LOG(LogTemp, Warning, TEXT("SERVER : Projectile Spawn Failed"));
 	}
 }
+
+//조준 설정
+void AGradu_ProCharacter::StartAiming()
+{
+}
+
+void AGradu_ProCharacter::StopAiming()
+{
+}

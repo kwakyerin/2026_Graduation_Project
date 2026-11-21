@@ -159,6 +159,15 @@ public:
 	//발사 입력 처리
 	void Fire();
 
+	//조준 시작
+	void StartAiming();
+
+	//조준 종료
+	void StopAiming();
+
+	//조준 중인지 확인
+	bool bIsAiming = false;
+
 	// 서버에 발사 요청
 	UFUNCTION(Server, Reliable)
 	void Server_Fire(FVector_NetQuantize TargetLocation);
