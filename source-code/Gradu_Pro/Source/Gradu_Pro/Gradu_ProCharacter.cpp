@@ -451,20 +451,39 @@ void AGradu_ProCharacter::Server_InteractCargo_Implementation()
 //여기서부터 발사체 설정
 void AGradu_ProCharacter::Fire()
 {
-	//화물 운반 중 발사 막아놓기
+	//화물 운반 중 발사 금지
 	if (CarriedCargo != nullptr)
 	{
 		UE_LOG(LogTemp, Warning,TEXT("[%s] Fire Blocked - Carrying Cargo"),HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"));
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning,TEXT("[%s] Fire Called | Character=%s"),HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"),
-		*GetName());
+	//카메라 위치/회전값 가져오기
+	FVector CameraLocation = FollowCamera->GetComponentLocation();
+	FRotator CameraRotation = FollowCamera->GetComponentRotation();
 
-	Server_Fire();
+	//카메라 바라보는 방향
+	FVector TraceStart = CameraLocation;
+	FVector TraceEnd = TraceStart +CameraRotation.Vector() * 10000.0f;
+
+	//Line Trace 설정
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,TraceStart,TraceEnd,ECC_Visibility,QueryParams);
+
+	//충돌한 위치
+	FVector TargetLocation = bHit? HitResult.ImpactPoint: TraceEnd;
+
+	UE_LOG(LogTemp, Warning,TEXT("[%s] Fire Target = %s"),HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"),
+		*TargetLocation.ToString());
+
+	//서버에 조준 위치 전달
+	Server_Fire(TargetLocation);
 }
 
-void AGradu_ProCharacter::Server_Fire_Implementation()
+void AGradu_ProCharacter::Server_Fire_Implementation(FVector_NetQuantize TargetLocation)
 {
 	/*UE_LOG(LogTemp, Warning,TEXT("[SERVER] Fire Request Received | Character=%s | Authority=%d"),*GetName(),
 		HasAuthority());*/
@@ -484,7 +503,11 @@ void AGradu_ProCharacter::Server_Fire_Implementation()
 
 	FVector SpawnLocation =GetActorLocation() +GetActorForwardVector() * 100.0f +FVector(0.0f, 0.0f, 50.0f);
 
-	FRotator SpawnRotation = GetControlRotation();
+	//발사 위치에서 조준 목표까지 방향 계산
+		FVector FireDirection =(FVector(TargetLocation) - SpawnLocation).GetSafeNormal();
+
+	//계산한 방향 회전값으로 변환
+	FRotator SpawnRotation = FireDirection.Rotation();
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
