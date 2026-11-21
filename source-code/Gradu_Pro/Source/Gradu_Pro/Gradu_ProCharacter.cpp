@@ -86,10 +86,10 @@ void AGradu_ProCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		//플레이어 컨트롤러키
 		PlayerInputComponent->BindKey(EKeys::LeftMouseButton,IE_Pressed,this,&AGradu_ProCharacter::Fire);
 
-		//조준 시작(왼쪽키 누르기)
+		//조준 시작(오른쪽키 누르기)
 		PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &AGradu_ProCharacter::StartAiming);
 
-		//조준 종료(왼쪽키 떼기)
+		//조준 종료(오른쪽키 떼기)
 		PlayerInputComponent->BindAction("Aim", IE_Released, this, &AGradu_ProCharacter::StopAiming);
 	}
 	else
@@ -546,6 +546,7 @@ void AGradu_ProCharacter::StartAiming()
 
 	//카메라 줌인
 	CameraBoom->TargetArmLength = 180.0f;
+	CameraBoom->SocketOffset = FVector(0.0f, 60.0f, 20.0f);
 
 	UE_LOG(LogTemp, Warning, TEXT("[AIM] Start Aiming"));
 }
@@ -556,6 +557,7 @@ void AGradu_ProCharacter::StopAiming()
 
 	//조준 해제 시 카메라 원래 거리로 복귀하게 하기
 	CameraBoom->TargetArmLength = 400.0f;
+	CameraBoom->SocketOffset = FVector::ZeroVector;
 
 	UE_LOG(LogTemp, Warning, TEXT("[AIM] Stop Aiming"));
 }
