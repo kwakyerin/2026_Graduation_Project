@@ -2,6 +2,13 @@
 
 
 #include "BTTask_FlyToTarget.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardData.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
+#include "GameFramework/Actor.h"
 
 UBTTask_FlyToTarget::UBTTask_FlyToTarget() {
 	//bt에 표시할 이름
@@ -16,9 +23,47 @@ UBTTask_FlyToTarget::UBTTask_FlyToTarget() {
 }
 
 void UBTTask_FlyToTarget:: InitializeFromAsset(UBehaviorTree& Asset){
+	Super::InitializeFromAsset(Asset);
+
+	if (Asset.BlackboardAsset)
+	{
+		TargetKey.ResolveSelectedKey(*Asset.BlackboardAsset);
+	}
 }
 
 bool UBTTask_FlyToTarget::GetTargetLocation(UBehaviorTreeComponent& OwnerComp,FVector& OutTargetLocation) const{
+    UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
+
+    if (!Blackboard || TargetKey.SelectedKeyName.IsNone())
+    {
+        return false;
+    }
+
+    if (TargetKey.SelectedKeyType == UBlackboardKeyType_Vector::StaticClass())
+    {
+        if (!Blackboard->IsVectorValueSet(TargetKey.SelectedKeyName))
+        {
+            return false;
+        }
+
+        OutTargetLocation = Blackboard->GetValueAsVector(TargetKey.SelectedKeyName);
+
+        return true;
+    }
+
+    if (TargetKey.SelectedKeyType == UBlackboardKeyType_Object::StaticClass())
+    {
+        AActor* TargetActor = Cast<AActor>(Blackboard->GetValueAsObject(TargetKey.SelectedKeyName));
+
+        if (!IsValid(TargetActor))
+        {
+            return false;
+        }
+
+        OutTargetLocation = TargetActor->GetActorLocation();
+
+        return true;
+    }
 	return false;
 }
 
