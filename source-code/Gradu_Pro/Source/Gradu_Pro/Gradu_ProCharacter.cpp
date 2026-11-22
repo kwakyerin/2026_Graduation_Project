@@ -479,11 +479,22 @@ void AGradu_ProCharacter::Fire()
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,TraceStart,TraceEnd,ECC_Visibility,QueryParams);
 
+	//디버그선 그려서 확인
+	DrawDebugLine(GetWorld(),TraceStart,bHit ? HitResult.ImpactPoint : TraceEnd,FColor::Red,false,
+		3.0f,0,2.0f);
+
 	//충돌한 위치
 	FVector TargetLocation = bHit? HitResult.ImpactPoint: TraceEnd;
 
-	UE_LOG(LogTemp, Warning,TEXT("[%s] Fire Target = %s"),HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"),
-		*TargetLocation.ToString());
+	UE_LOG(LogTemp, Warning,TEXT("[AIM TRACE] Hit=%d | Actor=%s | Distance=%.1f"),
+		bHit ? 1 : 0,
+		bHit && HitResult.GetActor()
+		? *HitResult.GetActor()->GetName()
+		: TEXT("None"),
+		bHit ? HitResult.Distance : 10000.0f);
+
+	/*UE_LOG(LogTemp, Warning,TEXT("[%s] Fire Target = %s"),HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"),
+		*TargetLocation.ToString());*/
 
 	//서버에 조준 위치 전달
 	Server_Fire(TargetLocation);
@@ -510,7 +521,11 @@ void AGradu_ProCharacter::Server_Fire_Implementation(FVector_NetQuantize TargetL
 	FVector SpawnLocation =GetActorLocation() +GetActorForwardVector() * 100.0f +FVector(0.0f, 0.0f, 50.0f);
 
 	//발사 위치에서 조준 목표까지 방향 계산
-		FVector FireDirection =(FVector(TargetLocation) - SpawnLocation).GetSafeNormal();
+	FVector FireDirection =(FVector(TargetLocation) - SpawnLocation).GetSafeNormal();
+
+	//발사체 위치확인 로그
+	UE_LOG(LogTemp, Warning,TEXT("[AIM DEBUG] Spawn=%s | Target=%s | Direction=%s"),*SpawnLocation.ToString(),
+		*FVector(TargetLocation).ToString(),*FireDirection.ToString());
 
 	//계산한 방향 회전값으로 변환
 	FRotator SpawnRotation = FireDirection.Rotation();
