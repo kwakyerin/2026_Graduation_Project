@@ -486,8 +486,8 @@ void AGradu_ProCharacter::Fire()
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,TraceStart,TraceEnd,ECC_Visibility,QueryParams);
 
 	//디버그선 그려서 확인
-	DrawDebugLine(GetWorld(),TraceStart,bHit ? HitResult.ImpactPoint : TraceEnd,FColor::Red,false,
-		3.0f,0,2.0f);
+	/*DrawDebugLine(GetWorld(),TraceStart,bHit ? HitResult.ImpactPoint : TraceEnd,FColor::Red,false,
+		3.0f,0,2.0f);*/
 
 	//충돌한 위치
 	FVector TargetLocation = bHit? HitResult.ImpactPoint: TraceEnd;
@@ -524,7 +524,9 @@ void AGradu_ProCharacter::Server_Fire_Implementation(FVector_NetQuantize TargetL
 		return;
 	}
 
-	FVector SpawnLocation =GetActorLocation() +GetActorForwardVector() * 100.0f +FVector(0.0f, 0.0f, 50.0f);
+	//총위치 여기서 설정(발사구 위치)
+	FVector SpawnLocation =GetActorLocation()+ GetActorForwardVector() * 80.0f+ GetActorRightVector() * 35.0f
+		+ FVector(0.0f, 0.0f, 50.0f);
 
 	//발사 위치에서 조준 목표까지 방향 계산
 	FVector FireDirection =(FVector(TargetLocation) - SpawnLocation).GetSafeNormal();
