@@ -470,13 +470,14 @@ void AGradu_ProCharacter::Fire()
 
 	//카메라 바라보는 방향
 	FVector TraceStart = CameraLocation;
-	//FVector TraceEnd = TraceStart +CameraRotation.Vector() * 10000.0f;
+	FVector TraceEnd = TraceStart +CameraRotation.Vector() * 10000.0f;
 
-	FVector TraceDirection = CameraRotation.Vector();
+	//수평 상태에서 쏠려면 여기 주석 해제하면됨(대신 위랑 아래쪽으로 쏘지 못함)
+	/*FVector TraceDirection = CameraRotation.Vector();
 	TraceDirection.Z = 0.0f;
 	TraceDirection.Normalize();
 
-	FVector TraceEnd = TraceStart + TraceDirection * 10000.0f;
+	FVector TraceEnd = TraceStart + TraceDirection * 10000.0f;*/
 
 	//Line Trace 설정
 	FHitResult HitResult;
