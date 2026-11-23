@@ -522,6 +522,25 @@ void AGradu_ProCharacter::StartAiming()
 	CameraBoom->TargetArmLength = 180.0f;
 	CameraBoom->SocketOffset = FVector(0.0f, 60.0f, 20.0f);
 
+	//에임 자기 화면에만 표시되게 하기
+	if (IsLocallyControlled())
+	{
+		if (!AimWidget && AimWidgetClass)
+		{
+			AimWidget = CreateWidget<UUserWidget>(GetWorld(), AimWidgetClass);
+
+			if (AimWidget)
+			{
+				AimWidget->AddToViewport();
+			}
+		}
+
+		if (AimWidget)
+		{
+			AimWidget->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("[AIM] Start Aiming"));
 }
 

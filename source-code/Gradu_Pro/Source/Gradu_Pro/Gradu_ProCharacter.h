@@ -2,10 +2,12 @@
 
 #pragma once
 
+#include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "Gradu_ProCharacter.generated.h"
+
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -171,6 +173,14 @@ public:
 	// 서버에 발사 요청
 	UFUNCTION(Server, Reliable)
 	void Server_Fire(FVector_NetQuantizeNormal FireDirection);
+
+	//여기서부터 에임 관리
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aim|UI")
+	TSubclassOf<UUserWidget> AimWidgetClass;
+
+	UPROPERTY()
+	UUserWidget* AimWidget = nullptr;
 
 };
 
