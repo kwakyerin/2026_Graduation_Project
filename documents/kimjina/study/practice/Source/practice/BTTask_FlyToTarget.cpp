@@ -9,6 +9,9 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "GameFramework/Actor.h"
+#include "AIController.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/FloatingPawnMovement.h"
 
 UBTTask_FlyToTarget::UBTTask_FlyToTarget() {
 	//bt에 표시할 이름
@@ -75,7 +78,21 @@ void UBTTask_FlyToTarget::TickTask(UBehaviorTreeComponent& OwnerComp,uint8* Node
 }
 
 void UBTTask_FlyToTarget::StopFlight(UBehaviorTreeComponent& OwnerComp) const {
+    AAIController* Controller = OwnerComp.GetAIOwner();
 
+    APawn* ControlledPawn = Controller ? Controller->GetPawn() : nullptr;
+
+    if (!IsValid(ControlledPawn))
+    {
+        return;
+    }
+
+    ControlledPawn->ConsumeMovementInputVector();
+
+    if (UFloatingPawnMovement* Movement = ControlledPawn->FindComponentByClass<UFloatingPawnMovement>())
+    {
+        Movement->StopMovementImmediately();
+    }
 }
 
 EBTNodeResult::Type UBTTask_FlyToTarget::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
