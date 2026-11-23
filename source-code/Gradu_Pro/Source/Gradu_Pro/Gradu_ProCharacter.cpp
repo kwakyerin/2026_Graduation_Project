@@ -469,92 +469,42 @@ void AGradu_ProCharacter::Fire()
 	FRotator CameraRotation = FollowCamera->GetComponentRotation();
 
 	//카메라 바라보는 방향
-	FVector TraceStart = CameraLocation;
-	FVector TraceEnd = TraceStart +CameraRotation.Vector() * 10000.0f;
+	FVector FireDirection = FollowCamera->GetForwardVector();
 
-	//수평 상태에서 쏠려면 여기 주석 해제하면됨(대신 위랑 아래쪽으로 쏘지 못함)
-	/*FVector TraceDirection = CameraRotation.Vector();
-	TraceDirection.Z = 0.0f;
-	TraceDirection.Normalize();
+	//발사 끝부분 높이 조정
+	FireDirection.Z += 0.1f;
 
-	FVector TraceEnd = TraceStart + TraceDirection * 10000.0f;*/
-
-	//Line Trace 설정
-	FHitResult HitResult;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,TraceStart,TraceEnd,ECC_Visibility,QueryParams);
-
-	//디버그선 그려서 확인
-	/*DrawDebugLine(GetWorld(),TraceStart,bHit ? HitResult.ImpactPoint : TraceEnd,FColor::Red,false,
-		3.0f,0,2.0f);*/
-
-	//충돌한 위치
-	FVector TargetLocation = bHit? HitResult.ImpactPoint: TraceEnd;
-
-	UE_LOG(LogTemp, Warning,TEXT("[AIM TRACE] Hit=%d | Actor=%s | Distance=%.1f"),
-		bHit ? 1 : 0,
-		bHit && HitResult.GetActor()
-		? *HitResult.GetActor()->GetName()
-		: TEXT("None"),
-		bHit ? HitResult.Distance : 10000.0f);
-
-	/*UE_LOG(LogTemp, Warning,TEXT("[%s] Fire Target = %s"),HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"),
-		*TargetLocation.ToString());*/
-
-	//서버에 조준 위치 전달
-	Server_Fire(TargetLocation);
+	//서버에 발사 방향 전달
+	Server_Fire(FireDirection.GetSafeNormal());
 }
 
-void AGradu_ProCharacter::Server_Fire_Implementation(FVector_NetQuantize TargetLocation)
+void AGradu_ProCharacter::Server_Fire_Implementation(FVector_NetQuantizeNormal FireDirection)
 {
-	/*UE_LOG(LogTemp, Warning,TEXT("[SERVER] Fire Request Received | Character=%s | Authority=%d"),*GetName(),
-		HasAuthority());*/
-
-	//서버에서 최종검사하기
+	// 화물 운반 중 발사 불가능
 	if (CarriedCargo != nullptr)
 	{
-		UE_LOG(LogTemp, Warning,TEXT("[SERVER] Fire Rejected - Carrying Cargo | Character=%s"),*GetName());
 		return;
 	}
 
 	if (!ProjectileClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ProjectileClass is NULL"));
 		return;
 	}
 
-	//총위치 여기서 설정(발사구 위치)
+	//발사체 생성 위치
 	FVector SpawnLocation =GetActorLocation()+ GetActorForwardVector() * 80.0f+ GetActorRightVector() * 35.0f
-		+ FVector(0.0f, 0.0f, 50.0f);
+		+ FVector(0.0f, 0.0f, 70.0f);
 
-	//발사 위치에서 조준 목표까지 방향 계산
-	FVector FireDirection =(FVector(TargetLocation) - SpawnLocation).GetSafeNormal();
+	//카메라 방향을 발사체 회전값으로 변환
+	FRotator SpawnRotation = FVector(FireDirection).Rotation();
 
-	//발사체 위치확인 로그
-	UE_LOG(LogTemp, Warning,TEXT("[AIM DEBUG] Spawn=%s | Target=%s | Direction=%s"),*SpawnLocation.ToString(),
-		*FVector(TargetLocation).ToString(),*FireDirection.ToString());
-
-	//계산한 방향 회전값으로 변환
-	FRotator SpawnRotation = FireDirection.Rotation();
-
+	//발사체 생성
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 	SpawnParams.Instigator = this;
 
 	ATestProjectile* Projectile =GetWorld()->SpawnActor<ATestProjectile>(ProjectileClass,
-			SpawnLocation,SpawnRotation,SpawnParams);
-
-	//확인로그(중간점검)
-	if (Projectile)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[PROJECTILE] Projectile Spawned Successfully"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SERVER : Projectile Spawn Failed"));
-	}
+		SpawnLocation,SpawnRotation,SpawnParams);
 }
 
 //조준 설정

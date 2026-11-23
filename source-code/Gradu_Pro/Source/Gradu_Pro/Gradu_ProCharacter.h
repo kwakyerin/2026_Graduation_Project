@@ -170,7 +170,7 @@ public:
 
 	// 서버에 발사 요청
 	UFUNCTION(Server, Reliable)
-	void Server_Fire(FVector_NetQuantize TargetLocation);
+	void Server_Fire(FVector_NetQuantizeNormal FireDirection);
 
 };
 
