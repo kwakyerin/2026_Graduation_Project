@@ -552,5 +552,11 @@ void AGradu_ProCharacter::StopAiming()
 	CameraBoom->TargetArmLength = 400.0f;
 	CameraBoom->SocketOffset = FVector::ZeroVector;
 
+	// ¿¡ÀÓ ¼û±è
+	if (AimWidget)
+	{
+		AimWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("[AIM] Stop Aiming"));
 }
