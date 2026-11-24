@@ -126,8 +126,15 @@ void UBTTask_FlyToTarget::TickTask(UBehaviorTreeComponent& OwnerComp,uint8* Node
     }
 
     const FVector Direction = ToTarget.GetSafeNormal();
-
     ControlledPawn->AddMovementInput(Direction, 1.0f);
+
+    const FVector Velocity = ControlledPawn->GetVelocity();
+
+    if (!Velocity.IsNearlyZero())
+    {
+        ControlledPawn->SetActorRotation(Velocity.Rotation());
+    }
+
 }
 
 void UBTTask_FlyToTarget::StopFlight(UBehaviorTreeComponent& OwnerComp) const {
