@@ -71,10 +71,63 @@ bool UBTTask_FlyToTarget::GetTargetLocation(UBehaviorTreeComponent& OwnerComp,FV
 }
 
 EBTNodeResult::Type UBTTask_FlyToTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp,uint8* NodeMemory){
-	return EBTNodeResult::Failed;
+    AAIController* Controller = OwnerComp.GetAIOwner();
+
+    APawn* ControlledPawn = Controller ? Controller->GetPawn() : nullptr;
+
+    FVector TargetLocation = FVector::ZeroVector;
+
+    if (!IsValid(ControlledPawn) ||
+        !ControlledPawn->FindComponentByClass<UFloatingPawnMovement>() ||
+        !GetTargetLocation(OwnerComp, TargetLocation))
+    {
+        StopFlight(OwnerComp);
+        return EBTNodeResult::Failed;
+    }
+
+    const float ArrivalRadius = FMath::Max(AcceptanceRadius, 1.0f);
+
+    const float Distance = FVector::Dist(ControlledPawn->GetActorLocation(),TargetLocation);
+
+    if (Distance <= ArrivalRadius)
+    {
+        StopFlight(OwnerComp);
+        return EBTNodeResult::Succeeded;
+    }
+
+    return EBTNodeResult::InProgress;
 }
 
 void UBTTask_FlyToTarget::TickTask(UBehaviorTreeComponent& OwnerComp,uint8* NodeMemory,float DeltaSeconds){ 
+    AAIController* Controller = OwnerComp.GetAIOwner();
+
+    APawn* ControlledPawn = Controller ? Controller->GetPawn() : nullptr;
+
+    FVector TargetLocation = FVector::ZeroVector;
+
+    if (!IsValid(ControlledPawn) ||
+        !ControlledPawn->FindComponentByClass<UFloatingPawnMovement>() ||
+        !GetTargetLocation(OwnerComp, TargetLocation))
+    {
+        StopFlight(OwnerComp);
+        FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+        return;
+    }
+
+    const FVector ToTarget = TargetLocation - ControlledPawn->GetActorLocation();
+
+    const float ArrivalRadius = FMath::Max(AcceptanceRadius, 1.0f);
+
+    if (ToTarget.Size() <= ArrivalRadius)
+    {
+        StopFlight(OwnerComp);
+        FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+        return;
+    }
+
+    const FVector Direction = ToTarget.GetSafeNormal();
+
+    ControlledPawn->AddMovementInput(Direction, 1.0f);
 }
 
 void UBTTask_FlyToTarget::StopFlight(UBehaviorTreeComponent& OwnerComp) const {
@@ -96,6 +149,7 @@ void UBTTask_FlyToTarget::StopFlight(UBehaviorTreeComponent& OwnerComp) const {
 }
 
 EBTNodeResult::Type UBTTask_FlyToTarget::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
+    StopFlight(OwnerComp);
 	return EBTNodeResult::Aborted;
 
 }
