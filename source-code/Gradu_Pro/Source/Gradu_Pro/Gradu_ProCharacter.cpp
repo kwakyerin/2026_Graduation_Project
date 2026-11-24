@@ -472,7 +472,7 @@ void AGradu_ProCharacter::Fire()
 	FVector FireDirection = FollowCamera->GetForwardVector();
 
 	//발사 끝부분 높이 조정
-	FireDirection.Z += 0.1f;
+	FireDirection.Z += 0.05f;
 
 	//서버에 발사 방향 전달
 	Server_Fire(FireDirection.GetSafeNormal());
